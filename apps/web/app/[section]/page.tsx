@@ -1,0 +1,36 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+
+import { CommandCenter } from "@/components/command-center";
+import { PlaceholderView } from "@/components/placeholder-view";
+import { sections } from "@/lib/navigation";
+
+type SectionPageProps = {
+  params: Promise<{ section: string }>;
+};
+
+export function generateStaticParams() {
+  return sections.map(({ slug }) => ({ section: slug }));
+}
+
+export async function generateMetadata({ params }: SectionPageProps): Promise<Metadata> {
+  const { section: slug } = await params;
+  const section = sections.find((item) => item.slug === slug);
+
+  return section ? { title: section.label } : {};
+}
+
+export default async function SectionPage({ params }: SectionPageProps) {
+  const { section: slug } = await params;
+  const section = sections.find((item) => item.slug === slug);
+
+  if (!section) {
+    notFound();
+  }
+
+  if (section.slug === "command-center") {
+    return <CommandCenter />;
+  }
+
+  return <PlaceholderView section={section} />;
+}
