@@ -2,21 +2,22 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
+import { ui } from "@/lib/i18n";
 
 import "./globals.css";
+import "../styles/data-studio.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "NEXORA — Demand Intelligence System",
+    default: ui.meta.title,
     template: "%s | NEXORA",
   },
-  description:
-    "Operational demand intelligence for clear, context-aware decisions.",
+  description: ui.meta.description,
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body>
         <AppShell>{children}</AppShell>
       </body>

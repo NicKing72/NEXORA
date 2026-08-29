@@ -12,6 +12,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
+import { ui } from "@/lib/i18n";
+
 export type NavigationSection = {
   slug: string;
   label: string;
@@ -20,14 +22,14 @@ export type NavigationSection = {
 };
 
 export const sections: NavigationSection[] = [
-  { slug: "command-center", label: "Command Center", description: "A unified operational view of demand health and priorities.", icon: LayoutGrid },
-  { slug: "data-studio", label: "Data Studio", description: "Prepare, validate, and govern demand-ready datasets.", icon: Table2 },
-  { slug: "demand-explorer", label: "Demand Explorer", description: "Explore demand patterns across products, locations, and time.", icon: ChartLine },
-  { slug: "forecast-lab", label: "Forecast Lab", description: "Configure, compare, and evaluate future forecast cycles.", icon: FlaskConical },
-  { slug: "context-radar", label: "Context Radar", description: "Understand the external signals shaping demand.", icon: Radar },
-  { slug: "scenario-lab", label: "Scenario Lab", description: "Test assumptions and compare operational possibilities.", icon: Sparkles },
-  { slug: "decision-center", label: "Decision Center", description: "Turn demand evidence into focused operational actions.", icon: CircleGauge },
-  { slug: "portfolio", label: "Portfolio", description: "Monitor products and segments through one structured portfolio.", icon: Boxes },
-  { slug: "model-explain", label: "Model Explain", description: "Inspect the future reasoning behind forecast outcomes.", icon: ScanSearch },
-  { slug: "reports", label: "Reports", description: "Create clear, repeatable views for stakeholders.", icon: FileText },
+  { slug: "command-center", ...ui.navigation.sections.commandCenter, icon: LayoutGrid },
+  { slug: "data-studio", ...ui.navigation.sections.dataStudio, icon: Table2 },
+  { slug: "demand-explorer", ...ui.navigation.sections.demandExplorer, icon: ChartLine },
+  { slug: "forecast-lab", ...ui.navigation.sections.forecastLab, icon: FlaskConical },
+  { slug: "context-radar", ...ui.navigation.sections.contextRadar, icon: Radar },
+  { slug: "scenario-lab", ...ui.navigation.sections.scenarioLab, icon: Sparkles },
+  { slug: "decision-center", ...ui.navigation.sections.decisionCenter, icon: CircleGauge },
+  { slug: "portfolio", ...ui.navigation.sections.portfolio, icon: Boxes },
+  { slug: "model-explain", ...ui.navigation.sections.modelExplain, icon: ScanSearch },
+  { slug: "reports", ...ui.navigation.sections.reports, icon: FileText },
 ];

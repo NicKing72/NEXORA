@@ -9,9 +9,13 @@ description = "Foundation API for the NEXORA Demand Intelligence System"
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115,<0.120",
+  "openpyxl>=3.1,<4.0",
+  "pandas>=2.2,<3.0",
   "pydantic>=1.10.21,<2.0",
+  "python-multipart>=0.0.20,<1.0",
   "sqlalchemy>=2.0,<2.2",
   "uvicorn>=0.35,<1.0",
+  "xlrd>=2.0,<3.0",
 ]
 
 [project.optional-dependencies]
@@ -25,7 +29,7 @@ dev = [
 where = ["src"]
 
 [tool.pytest.ini_options]
-addopts = "-q"
+addopts = "-q --basetemp=.pytest-tmp"
 pythonpath = ["src"]
 testpaths = ["tests"]
 
@@ -35,3 +39,6 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["B", "E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/nexora_api/api/routes/*.py" = ["B008"]

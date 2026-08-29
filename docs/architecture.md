@@ -12,14 +12,16 @@ Browser → apps/web (Next.js) → apps/api (FastAPI) → data/nexora.db (SQLite
 
 ## Backend
 
-`apps/api` separates routes, schemas, services, models, configuration, and database infrastructure. SQLAlchemy owns persistence behind a configurable database URL, allowing SQLite to be replaced by PostgreSQL later without changing endpoint contracts. No domain tables or business rules are included in Milestone 1.
+`apps/api` separates routes, schemas, services, models, configuration, and database infrastructure. SQLAlchemy owns persistence behind a configurable database URL, allowing SQLite to be replaced by PostgreSQL later without changing endpoint contracts. Data Studio adds dataset metadata, mappings, quality reports, issues, and lineage records while source rows remain in filesystem-backed canonical files.
 
 ## Boundaries for future milestones
 
-- Add demand and product entities under `models/` only after their contracts are defined.
+- Add forecasting entities only after their contracts are defined in a later milestone.
 - Keep HTTP concerns in `api/routes/` and business workflows in `services/`.
 - Use migrations before introducing production data.
 - Do not place forecasting algorithms inside route handlers or UI components.
+
+See [data-studio.md](data-studio.md) for the ingestion, storage, mapping, and readiness boundaries introduced in Milestone 2.
 
 ## Managed Windows compatibility
 

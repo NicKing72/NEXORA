@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
+import { ui } from "@/lib/i18n";
 import type { NavigationSection } from "@/lib/navigation";
 
 export function PlaceholderView({ section }: Readonly<{ section: NavigationSection }>) {
@@ -10,7 +11,7 @@ export function PlaceholderView({ section }: Readonly<{ section: NavigationSecti
     <div className="workspace placeholder-workspace">
       <header className="workspace-header">
         <div>
-          <span className="eyebrow">NEXORA workspace / Foundation</span>
+          <span className="eyebrow">{ui.placeholder.eyebrow}</span>
           <h1>{section.label}</h1>
           <p>{section.description}</p>
         </div>
@@ -19,25 +20,22 @@ export function PlaceholderView({ section }: Readonly<{ section: NavigationSecti
       <section className="placeholder-stage">
         <div className="placeholder-grid" aria-hidden="true" />
         <span className="placeholder-icon"><Icon size={26} strokeWidth={1.4} /></span>
-        <span className="section-index">Module reserved</span>
-        <h2>Designed for the next operational layer.</h2>
-        <p>
-          The workspace architecture is in place. Product logic and connected data
-          will be added in their corresponding milestones.
-        </p>
+        <span className="section-index">{ui.placeholder.reserved}</span>
+        <h2>{ui.placeholder.title}</h2>
+        <p>{ui.placeholder.description}</p>
         <div className="placeholder-actions">
           <Link className="secondary-action" href="/command-center">
-            <ArrowLeft size={15} /> Return to Command Center
+            <ArrowLeft size={15} /> {ui.placeholder.returnToCommand}
           </Link>
           <span className="text-action text-action--muted">
-            Milestone 01 <ArrowUpRight size={14} />
+            {ui.placeholder.milestone} <ArrowUpRight size={14} />
           </span>
         </div>
       </section>
 
       <footer className="workspace-footer">
-        <span>Module status: structure ready</span>
-        <span>Demand Intelligence System</span>
+        <span>{ui.placeholder.status}</span>
+        <span>{ui.brand.subtitle}</span>
       </footer>
     </div>
   );

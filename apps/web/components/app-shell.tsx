@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
+import { ui } from "@/lib/i18n";
 import { sections } from "@/lib/navigation";
 
 export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
@@ -14,14 +15,14 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <div className="app-shell">
       <header className="mobile-header">
-        <Link className="brand brand--mobile" href="/" aria-label="NEXORA home">
+        <Link className="brand brand--mobile" href="/" aria-label={ui.brand.homeLabel}>
           <span className="brand-mark">N</span>
           <span>NEXORA</span>
         </Link>
         <button
           className="icon-button"
           type="button"
-          aria-label={isMenuOpen ? "Close navigation" : "Open navigation"}
+          aria-label={isMenuOpen ? ui.navigation.close : ui.navigation.open}
           aria-expanded={isMenuOpen}
           onClick={() => setIsMenuOpen((open) => !open)}
         >
@@ -35,12 +36,12 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
             <span className="brand-mark">N</span>
             <span className="brand-copy">
               <strong>NEXORA</strong>
-              <small>Demand Intelligence System</small>
+              <small>{ui.brand.subtitle}</small>
             </span>
           </Link>
 
-          <nav className="primary-nav" aria-label="Primary navigation">
-            <span className="nav-label">Workspace</span>
+          <nav className="primary-nav" aria-label={ui.navigation.label}>
+            <span className="nav-label">{ui.navigation.workspace}</span>
             {sections.map((item) => {
               const isActive =
                 pathname === `/${item.slug}` ||
@@ -66,8 +67,8 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
         <div className="sidebar-status">
           <Radio size={15} aria-hidden="true" />
           <span>
-            <strong>Foundation mode</strong>
-            <small>Core systems ready</small>
+            <strong>{ui.shell.foundationMode}</strong>
+            <small>{ui.shell.coreReady}</small>
           </span>
           <span className="status-dot" aria-hidden="true" />
         </div>
@@ -76,7 +77,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
       {isMenuOpen && (
         <button
           className="sidebar-scrim"
-          aria-label="Close navigation"
+          aria-label={ui.navigation.close}
           onClick={() => setIsMenuOpen(false)}
         />
       )}

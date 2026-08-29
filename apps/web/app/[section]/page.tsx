@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CommandCenter } from "@/components/command-center";
+import { DataStudio } from "@/components/data-studio/data-studio";
 import { PlaceholderView } from "@/components/placeholder-view";
 import { sections } from "@/lib/navigation";
 
@@ -30,6 +31,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "command-center") {
     return <CommandCenter />;
+  }
+
+  if (section.slug === "data-studio") {
+    return <DataStudio />;
   }
 
   return <PlaceholderView section={section} />;

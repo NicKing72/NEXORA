@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-NEXORA is a pnpm monorepo with two independent applications. `apps/web/` contains the Next.js App Router frontend; keep pages in `app/`, reusable interface code in `components/`, and shared definitions in `lib/`. `apps/api/` contains the FastAPI service using a `src/nexora_api/` package split into `api/routes`, `core`, `db`, `models`, `schemas`, and `services`. Backend tests live in `apps/api/tests/`; future cross-application tests belong in `tests/`. Architecture notes are in `docs/`, while local SQLite files are written to `data/` and ignored.
+NEXORA is a pnpm monorepo with two independent applications. `apps/web/` contains the Next.js App Router frontend; Data Studio components live under `components/data-studio/` with contracts and API calls in `lib/`. `apps/api/` contains FastAPI routes, schemas, services, models, configuration, and SQLAlchemy infrastructure. Data Studio logic belongs in `services/data_studio/`, not route handlers. Backend tests live in `apps/api/tests/`; architecture notes are in `docs/`. SQLite, uploads, canonical files, and generated demo instances live under ignored `data/` paths.
 
 ## Build, Test, and Development Commands
 
@@ -21,7 +21,7 @@ Use strict TypeScript, functional React components, two-space indentation, `Pasc
 
 ## Testing Guidelines
 
-Add deterministic tests for every endpoint or behavior change. Name Python tests `test_<outcome>` in `test_<feature>.py`. Keep external services, clocks, and files isolated. Milestone 1 requires the health smoke test plus successful frontend lint, typecheck, and build.
+Add deterministic tests for every endpoint or behavior change. Name Python tests `test_<outcome>` in `test_<feature>.py`. Use isolated temporary storage and an in-memory SQLite database. Data Studio changes must cover upload, mapping, quality, readiness, and demo behavior. Frontend lint, typecheck, and production build must remain successful.
 
 ## Commit & Pull Request Guidelines
 
@@ -29,4 +29,4 @@ Use imperative Conventional Commits, such as `feat(web): add command center shel
 
 ## Security & Scope
 
-Never commit `.env`, credentials, local databases, or generated output. Update `.env.example` for new settings. Do not add forecasting, machine learning, inventory, or external integrations until a later milestone explicitly authorizes them.
+Never commit `.env`, credentials, local databases, uploads, canonical datasets, or generated output. Update `.env.example` for new settings. Treat filenames as untrusted and keep paths beneath the configured data root. Do not add forecasting, machine learning, inventory optimization, or external integrations until a later milestone authorizes them.

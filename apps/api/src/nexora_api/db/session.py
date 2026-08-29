@@ -6,6 +6,7 @@ from pathlib import Path
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from nexora_api import models as _models  # noqa: F401
 from nexora_api.core.config import get_settings
 from nexora_api.db.base import Base
 
@@ -22,6 +23,9 @@ def initialize_database() -> None:
         database_path = settings.database_url.removeprefix("sqlite:///")
         Path(database_path).parent.mkdir(parents=True, exist_ok=True)
     Base.metadata.create_all(bind=engine)
+    if settings.database_url.startswith("sqlite"):
+        with engine.begin() as connection:
+            connection.exec_driver_sql("PRAGMA optimize")
 
 
 def get_database_session() -> Generator[Session, None, None]:

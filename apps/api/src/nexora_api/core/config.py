@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str = _default_database_url()
     cors_origins: list[str] = ["http://localhost:3000"]
+    max_upload_bytes: int = 50 * 1024 * 1024
+    preview_rows: int = 30
+    storage_root: Path = Path(__file__).resolve().parents[5] / "data"
 
     class Config:
         """Pydantic environment loading behavior."""
