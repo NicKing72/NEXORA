@@ -17,7 +17,12 @@ from nexora_api.services.data_studio.storage import StorageService
 
 
 @pytest.fixture
-def client(tmp_path: Path) -> Generator[TestClient, None, None]:
+def storage(tmp_path: Path) -> StorageService:
+    return StorageService(tmp_path / "data", max_upload_bytes=2 * 1024 * 1024)
+
+
+@pytest.fixture
+def client(storage: StorageService) -> Generator[TestClient, None, None]:
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
@@ -25,8 +30,6 @@ def client(tmp_path: Path) -> Generator[TestClient, None, None]:
     )
     Base.metadata.create_all(bind=engine)
     testing_session = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
-    storage = StorageService(tmp_path / "data", max_upload_bytes=2 * 1024 * 1024)
-
     def override_database() -> Generator[Session, None, None]:
         with testing_session() as session:
             yield session

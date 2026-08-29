@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { CommandCenter } from "@/components/command-center";
 import { DataStudio } from "@/components/data-studio/data-studio";
+import { DemandExplorer } from "@/components/demand-explorer/demand-explorer";
 import { PlaceholderView } from "@/components/placeholder-view";
 import { sections } from "@/lib/navigation";
 
@@ -35,6 +36,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "data-studio") {
     return <DataStudio />;
+  }
+
+  if (section.slug === "demand-explorer") {
+    return <DemandExplorer />;
   }
 
   return <PlaceholderView section={section} />;

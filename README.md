@@ -1,12 +1,13 @@
 # NEXORA — Demand Intelligence System
 
-NEXORA is a professional demand-intelligence workspace. Milestone 2 adds Data Studio: a guided workflow for importing company CSV/Excel files, confirming detected columns, auditing data quality, and preparing a traceable dataset contract. It intentionally contains **no forecasting, machine learning, external integrations, or inventory optimization**.
+NEXORA is a professional demand-intelligence workspace. Milestone 3A adds Demand Explorer: it turns a READY Data Studio dataset into a filtered, aggregated, auditable time series before any model is trained. It intentionally contains **no forecasting, machine learning, external integrations, or inventory optimization**.
 
 ## What is included
 
 - **Web application:** Next.js, strict TypeScript, Tailwind CSS, responsive navigation.
 - **API:** Python, FastAPI, typed schemas, modular routes and services.
 - **Data Studio:** CSV, XLSX, and XLS import; demo data; mapping; quality audit; readiness score.
+- **Demand Explorer:** product, location, category, date, and frequency filters; interactive history; quality markers; descriptive pattern analysis.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -71,6 +72,19 @@ With both PowerShell windows still running:
 
 Data Readiness is a deterministic weighted score covering structure, temporal continuity, demand quality, historical coverage, product coverage, and optional context. The validation view shows exactly where points were lost.
 
+### Explore a demand series
+
+After marking a dataset as **LISTO** in Estudio de Datos:
+
+1. Open [http://localhost:3000/demand-explorer](http://localhost:3000/demand-explorer).
+2. Choose a dataset, product, location, optional category, period, and frequency.
+3. Use **Todos los productos** or **Todas las ubicaciones** to inspect an explicitly labeled aggregate series.
+4. Hover over the chart and use its lower slider or mouse wheel to zoom.
+5. Toggle values atípicos, faltantes, rupturas de stock, and demanda cero.
+6. Review resulting-series statistics separately from source-data quality, then inspect trend, intermittence, seasonality evidence, and preliminary data availability for Holt-Winters. No forecast is executed.
+
+Weekly aggregation uses calendar weeks beginning Monday; monthly aggregation uses calendar months. Partial edge periods remain visible with their coverage but are excluded from descriptive analysis by default. NEXORA never expands monthly data into daily observations and never imputes missing demand in this milestone.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -98,4 +112,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for roles, heuristics, score weights, demo anomalies, storage, and current limitations. The broader boundaries remain in [docs/architecture.md](docs/architecture.md).
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

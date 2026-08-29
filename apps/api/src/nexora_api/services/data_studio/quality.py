@@ -89,7 +89,8 @@ def _expected_observations(first: pd.Timestamp, last: pd.Timestamp, frequency: s
     return 0
 
 
-def _outlier_mask(values: pd.Series, group_keys: pd.DataFrame | None = None) -> pd.Series:
+def demand_outlier_mask(values: pd.Series, group_keys: pd.DataFrame | None = None) -> pd.Series:
+    """Return the exact robust outlier rule used by audit and downstream exploration."""
     numeric = pd.to_numeric(values, errors="coerce")
     result = pd.Series(False, index=values.index)
     groups = [(None, numeric)]
@@ -286,7 +287,7 @@ def run_quality_assessment(
         invalid_demand = int((raw_demand.notna() & numeric_demand.isna()).sum())
         negative_demand = int((numeric_demand < 0).sum())
         zero_demand = int((numeric_demand == 0).sum())
-        outlier_count = int(_outlier_mask(raw_demand, group_frame).sum())
+        outlier_count = int(demand_outlier_mask(raw_demand, group_frame).sum())
         if missing_demand:
             findings.append(
                 Finding(

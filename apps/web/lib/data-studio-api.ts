@@ -5,20 +5,7 @@ import type {
   QualityAssessment,
   ReadyPayload,
 } from "@/lib/data-studio-types";
-import { translateApiError } from "@/lib/i18n";
-
-const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
-type ErrorPayload = { error?: { code?: string; message?: string }; detail?: string };
-
-async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_ORIGIN}${path}`, init);
-  if (!response.ok) {
-    const payload = (await response.json().catch(() => ({}))) as ErrorPayload;
-    throw new Error(translateApiError(payload.error?.code));
-  }
-  return response.json() as Promise<T>;
-}
+import { apiRequest } from "@/lib/api-client";
 
 export function uploadDataset(file: File): Promise<Dataset> {
   const form = new FormData();

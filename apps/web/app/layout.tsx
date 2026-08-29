@@ -6,6 +6,7 @@ import { ui } from "@/lib/i18n";
 
 import "./globals.css";
 import "../styles/data-studio.css";
+import "../styles/demand-explorer.css";
 
 export const metadata: Metadata = {
   title: {
