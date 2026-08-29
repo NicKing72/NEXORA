@@ -58,6 +58,7 @@ class SeriesSelection(BaseModel):
     resolved_frequency: str
     start_date: date | None
     end_date: date | None
+    data_cutoff: date
     is_aggregated: bool
     aggregation_note: str | None
     price_method: str | None

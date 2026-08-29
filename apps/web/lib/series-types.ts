@@ -137,6 +137,7 @@ export type SeriesProfile = {
     resolved_frequency: string;
     start_date: string | null;
     end_date: string | null;
+    data_cutoff: string;
     is_aggregated: boolean;
     aggregation_note: string | null;
     price_method: string | null;

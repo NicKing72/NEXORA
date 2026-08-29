@@ -60,6 +60,9 @@ class Dataset(Base):
     transformations: Mapped[list[DataTransformation]] = relationship(
         back_populates="dataset", cascade="all, delete-orphan"
     )
+    forecast_runs: Mapped[list[ForecastRun]] = relationship(
+        back_populates="dataset", cascade="all, delete-orphan"
+    )
 
 
 class DatasetColumn(Base):
@@ -175,3 +178,110 @@ class DataTransformation(Base):
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now)
 
     dataset: Mapped[Dataset] = relationship(back_populates="transformations")
+
+
+class ForecastRun(Base):
+    """One reproducible forecast comparison for a canonical series."""
+
+    __tablename__ = "forecast_runs"
+    __table_args__ = (
+        Index("idx_forecast_runs_dataset_created", "dataset_id", "created_at"),
+        Index("idx_forecast_runs_status", "status"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    dataset_id: Mapped[str] = mapped_column(
+        ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    product: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    category: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    frequency: Mapped[str] = mapped_column(String(20))
+    requested_horizon: Mapped[int] = mapped_column(Integer)
+    validation_horizon: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now)
+    data_cutoff: Mapped[datetime] = mapped_column(UTCDateTime())
+    preprocessing_summary: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    seasonality_candidate: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    seasonality_evidence: Mapped[str] = mapped_column(String(20), default="insufficient")
+    status: Mapped[str] = mapped_column(String(20), default="running")
+    champion_model: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    champion_reason: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    warnings: Mapped[list[str]] = mapped_column(JSON, default=list)
+
+    dataset: Mapped[Dataset] = relationship(back_populates="forecast_runs")
+    model_results: Mapped[list[ForecastModelResult]] = relationship(
+        back_populates="run", cascade="all, delete-orphan"
+    )
+    points: Mapped[list[ForecastPoint]] = relationship(
+        back_populates="run", cascade="all, delete-orphan"
+    )
+
+
+class ForecastModelResult(Base):
+    """Eligibility, parameters, metrics, and rank for one candidate model."""
+
+    __tablename__ = "forecast_model_results"
+    __table_args__ = (Index("idx_forecast_models_run_rank", "run_id", "rank"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[str] = mapped_column(
+        ForeignKey("forecast_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    model_name: Mapped[str] = mapped_column(String(50))
+    eligible: Mapped[bool] = mapped_column(Boolean, default=True)
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    failure_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    parameters: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    metrics: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    stability: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    rank: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    run: Mapped[ForecastRun] = relationship(back_populates="model_results")
+    folds: Mapped[list[ForecastFoldResult]] = relationship(
+        back_populates="model_result", cascade="all, delete-orphan"
+    )
+
+
+class ForecastFoldResult(Base):
+    """One expanding-window out-of-sample evaluation fold."""
+
+    __tablename__ = "forecast_fold_results"
+    __table_args__ = (Index("idx_forecast_folds_model_index", "model_result_id", "fold_index"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    model_result_id: Mapped[int] = mapped_column(
+        ForeignKey("forecast_model_results.id", ondelete="CASCADE"), nullable=False
+    )
+    fold_index: Mapped[int] = mapped_column(Integer)
+    train_start: Mapped[datetime] = mapped_column(UTCDateTime())
+    train_end: Mapped[datetime] = mapped_column(UTCDateTime())
+    validation_start: Mapped[datetime] = mapped_column(UTCDateTime())
+    validation_end: Mapped[datetime] = mapped_column(UTCDateTime())
+    training_observations: Mapped[int] = mapped_column(Integer)
+    validation_observations: Mapped[int] = mapped_column(Integer)
+    metrics: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    actual_values: Mapped[list[float | None]] = mapped_column(JSON, default=list)
+    forecast_values: Mapped[list[float | None]] = mapped_column(JSON, default=list)
+
+    model_result: Mapped[ForecastModelResult] = relationship(back_populates="folds")
+
+
+class ForecastPoint(Base):
+    """One future point with optional empirical uncertainty bounds."""
+
+    __tablename__ = "forecast_points"
+    __table_args__ = (Index("idx_forecast_points_run_timestamp", "run_id", "timestamp"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    run_id: Mapped[str] = mapped_column(
+        ForeignKey("forecast_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    timestamp: Mapped[datetime] = mapped_column(UTCDateTime())
+    forecast: Mapped[float] = mapped_column(Float)
+    lower_80: Mapped[float | None] = mapped_column(Float, nullable=True)
+    upper_80: Mapped[float | None] = mapped_column(Float, nullable=True)
+    lower_95: Mapped[float | None] = mapped_column(Float, nullable=True)
+    upper_95: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    run: Mapped[ForecastRun] = relationship(back_populates="points")

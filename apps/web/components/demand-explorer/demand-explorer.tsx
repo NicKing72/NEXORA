@@ -1,6 +1,7 @@
 "use client";
 
-import { Database, RefreshCw } from "lucide-react";
+import { Database, FlaskConical, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { DemandChart, type EventVisibility } from "@/components/demand-explorer/demand-chart";
@@ -100,6 +101,13 @@ export function DemandExplorer() {
     () => datasets.find((dataset) => dataset.id === filters.datasetId) ?? null,
     [datasets, filters.datasetId],
   );
+  const forecastLabUrl = useMemo(() => {
+    const parameters = new URLSearchParams({ dataset_id: filters.datasetId, frequency: filters.frequency });
+    if (filters.product) parameters.set("product", filters.product);
+    if (filters.location) parameters.set("location", filters.location);
+    if (filters.category) parameters.set("category", filters.category);
+    return `/forecast-lab?${parameters.toString()}`;
+  }, [filters]);
 
   function updateFilters(patch: Partial<SeriesFilters>) {
     if (patch.datasetId && patch.datasetId !== filters.datasetId) {
@@ -143,6 +151,7 @@ export function DemandExplorer() {
                 {profile.selection.is_aggregated && <strong>{ui.demandExplorer.selector.aggregated}</strong>}
                 {profile.selection.aggregation_note && <span>{ui.demandExplorer.selector.aggregationNotes[profile.selection.aggregation_note as keyof typeof ui.demandExplorer.selector.aggregationNotes]}</span>}
                 {profile.selection.price_method && <small>{ui.demandExplorer.priceMethods[profile.selection.price_method as keyof typeof ui.demandExplorer.priceMethods]}</small>}
+                <Link className="dx-forecast-link" href={forecastLabUrl}><FlaskConical size={14} />{ui.demandExplorer.openForecastLab}</Link>
               </div>
               <DemandChart
                 points={profile.points}

@@ -8,6 +8,10 @@ from nexora_api.models.dataset import (
     Dataset,
     DatasetColumn,
     DataTransformation,
+    ForecastFoldResult,
+    ForecastModelResult,
+    ForecastPoint,
+    ForecastRun,
 )
 
 __all__ = [
@@ -18,4 +22,8 @@ __all__ = [
     "DataTransformation",
     "Dataset",
     "DatasetColumn",
+    "ForecastFoldResult",
+    "ForecastModelResult",
+    "ForecastPoint",
+    "ForecastRun",
 ]

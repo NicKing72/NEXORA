@@ -1,6 +1,6 @@
 # NEXORA — Demand Intelligence System
 
-NEXORA is a professional demand-intelligence workspace. Milestone 3A adds Demand Explorer: it turns a READY Data Studio dataset into a filtered, aggregated, auditable time series before any model is trained. It intentionally contains **no forecasting, machine learning, external integrations, or inventory optimization**.
+NEXORA is a professional demand-intelligence workspace. Milestone 3B adds an auditable univariate Forecast Core: it compares statistical models with expanding-window backtesting before generating a future forecast. It intentionally excludes **ARIMA, machine learning, external integrations, contextual regressors, and inventory optimization**.
 
 ## What is included
 
@@ -8,6 +8,7 @@ NEXORA is a professional demand-intelligence workspace. Milestone 3A adds Demand
 - **API:** Python, FastAPI, typed schemas, modular routes and services.
 - **Data Studio:** CSV, XLSX, and XLS import; demo data; mapping; quality audit; readiness score.
 - **Demand Explorer:** product, location, category, date, and frequency filters; interactive history; quality markers; descriptive pattern analysis.
+- **Forecast Lab:** explicit training preparation, seven statistical candidates, temporal backtesting, auditable Champion ranking, empirical intervals, and persisted runs.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -83,7 +84,19 @@ After marking a dataset as **LISTO** in Estudio de Datos:
 5. Toggle values atípicos, faltantes, rupturas de stock, and demanda cero.
 6. Review resulting-series statistics separately from source-data quality, then inspect trend, intermittence, seasonality evidence, and preliminary data availability for Holt-Winters. No forecast is executed.
 
-Weekly aggregation uses calendar weeks beginning Monday; monthly aggregation uses calendar months. Partial edge periods remain visible with their coverage but are excluded from descriptive analysis by default. NEXORA never expands monthly data into daily observations and never imputes missing demand in this milestone.
+Weekly aggregation uses calendar weeks beginning Monday; monthly aggregation uses calendar months. Partial edge periods remain visible with their coverage but are excluded from descriptive analysis by default. Demand Explorer never expands monthly data into daily observations and never imputes missing demand.
+
+### Compare forecasting models
+
+After preparing a dataset:
+
+1. Open [http://localhost:3000/forecast-lab](http://localhost:3000/forecast-lab), or use **Abrir en Laboratorio de Pronósticos** from Demand Explorer.
+2. Select dataset, product, location, category, frequency, and forecast horizon.
+3. Review the pre-flight panel. Partial periods are excluded; only small internal gaps (maximum two periods and at most 5% of history) may be interpolated for training, with a visible audit record.
+4. Select **Ejecutar comparación**. NEXORA evaluates Naive, Seasonal Naive, Moving Average, SES, Holt, and eligible additive/multiplicative Holt-Winters models using up to five expanding-window folds.
+5. Review the leaderboard, Champion rationale, WMAPE/MAE/RMSE/sMAPE/MAPE/Bias, fold ranges, α/β/γ, and the future chart with empirical 80%/95% intervals.
+
+Forecast runs and their audit metadata are stored in local SQLite. Original and canonical datasets are never modified. Forecasting is currently univariate: future prices, promotions, weather, external signals, and inventory decisions are not used.
 
 ## Run quality checks
 
@@ -112,4 +125,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

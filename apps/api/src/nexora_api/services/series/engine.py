@@ -502,6 +502,7 @@ def build_series_profile(
             "resolved_frequency": resolved_frequency,
             "start_date": start_date,
             "end_date": end_date,
+            "data_cutoff": selected["__date"].max().date(),
             "is_aggregated": is_aggregated,
             "aggregation_note": aggregation_note,
             "price_method": price_method,

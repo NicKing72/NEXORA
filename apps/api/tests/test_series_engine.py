@@ -88,6 +88,7 @@ def test_builds_one_sku_location_and_sums_transactions(client: TestClient) -> No
     assert result["points"][0]["stock"] == 8.0
     assert result["points"][0]["promotion"] is True
     assert result["selection"]["price_method"] == "demand_weighted_mean"
+    assert result["selection"]["data_cutoff"] == "2025-01-07"
     assert result["selection"]["is_aggregated"] is False
     assert result["points"][0]["coverage_ratio"] == 1.0
     assert result["points"][0]["is_partial"] is False

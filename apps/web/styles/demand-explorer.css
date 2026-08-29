@@ -203,6 +203,21 @@
   color: var(--text-muted);
 }
 
+.dx-forecast-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  margin-left: 0.25rem;
+  padding: 0.34rem 0.55rem;
+  border: 1px solid rgba(140, 198, 189, 0.28);
+  border-radius: 0.48rem;
+  color: var(--accent-strong);
+  font-size: 0.7rem;
+  font-weight: 650;
+}
+
+.dx-forecast-link:hover { background: var(--accent-soft); }
+
 .dx-chart-heading {
   margin-bottom: 0.2rem;
 }
@@ -713,4 +728,6 @@
     width: 100%;
     margin-left: 0;
   }
+
+  .dx-forecast-link { margin-left: 0; }
 }
