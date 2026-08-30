@@ -1,6 +1,6 @@
 # NEXORA — Demand Intelligence System
 
-NEXORA is a professional demand-intelligence workspace. Milestone 3B adds an auditable univariate Forecast Core: it compares statistical models with expanding-window backtesting before generating a future forecast. It intentionally excludes **ARIMA, machine learning, external integrations, contextual regressors, and inventory optimization**.
+NEXORA is a professional demand-intelligence workspace. Milestone 4A adds an auditable Context Engine and Context Radar while keeping Forecast Core strictly univariate. Context signals are visible evidence only: they do not change forecasts or estimate demand impact.
 
 ## What is included
 
@@ -9,6 +9,7 @@ NEXORA is a professional demand-intelligence workspace. Milestone 3B adds an aud
 - **Data Studio:** CSV, XLSX, and XLS import; demo data; mapping; quality audit; readiness score.
 - **Demand Explorer:** product, location, category, date, and frequency filters; interactive history; quality markers; descriptive pattern analysis.
 - **Forecast Lab:** explicit training preparation, seven statistical candidates, temporal backtesting, auditable Champion ranking, empirical intervals, and persisted runs.
+- **Context Radar:** manual and reproducible demo signals, deterministic scope matching, provenance, lifecycle status, and anti-leakage availability cutoffs.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -98,6 +99,19 @@ After preparing a dataset:
 
 Forecast runs and their audit metadata are stored in local SQLite. Original and canonical datasets are never modified. Forecasting is currently univariate: future prices, promotions, weather, external signals, and inventory decisions are not used.
 
+### Audit contextual signals
+
+After preparing the demo dataset or another READY dataset:
+
+1. Open [http://localhost:3000/context-radar](http://localhost:3000/context-radar).
+2. Select the dataset and, when useful, a product, location, and category.
+3. For the synthetic demo dataset, choose **Regenerar contexto demo** to load the fixed contextual examples.
+4. Set **Disponible al corte** to inspect only what NEXORA knew at that instant. Event dates do not bypass this availability rule.
+5. Select any signal to review family, event time, availability, provenance, confidence, scope, status, and deterministic match reasons.
+6. Choose **Nueva señal** to register a manual signal. Manual signals are confirmed by default and never alter the demand forecast.
+
+Demand Explorer provides **Ver contexto de esta serie**, preserving product, location, and category in the URL. Forecast Lab provides the same contextual access with an explicit notice that its current results remain univariate. Context data and audit records stay in the local SQLite database under the ignored `data/` directory.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -125,4 +139,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for temporal safety and relevance, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

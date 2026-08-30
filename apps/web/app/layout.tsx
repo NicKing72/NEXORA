@@ -8,6 +8,7 @@ import "./globals.css";
 import "../styles/data-studio.css";
 import "../styles/demand-explorer.css";
 import "../styles/forecast-lab.css";
+import "../styles/context-radar.css";
 
 export const metadata: Metadata = {
   title: {

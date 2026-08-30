@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { CommandCenter } from "@/components/command-center";
+import { ContextRadar } from "@/components/context-radar/context-radar";
 import { DataStudio } from "@/components/data-studio/data-studio";
 import { DemandExplorer } from "@/components/demand-explorer/demand-explorer";
 import { ForecastLab } from "@/components/forecast-lab/forecast-lab";
@@ -45,6 +46,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "forecast-lab") {
     return <ForecastLab />;
+  }
+
+  if (section.slug === "context-radar") {
+    return <ContextRadar />;
   }
 
   return <PlaceholderView section={section} />;

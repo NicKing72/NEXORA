@@ -1,6 +1,6 @@
 "use client";
 
-import { Database, FlaskConical, RefreshCw } from "lucide-react";
+import { Database, FlaskConical, Radar, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -84,6 +84,13 @@ export function ForecastLab() {
 
   const activeDataset = useMemo(() => datasets.find((item) => item.id === request.dataset_id) ?? null, [datasets, request.dataset_id]);
   const champion = run?.models.find((model) => model.rank === 1) ?? null;
+  const contextRadarUrl = useMemo(() => {
+    const parameters = new URLSearchParams({ dataset_id: request.dataset_id });
+    if (request.product) parameters.set("product", request.product);
+    if (request.location) parameters.set("location", request.location);
+    if (request.category) parameters.set("category", request.category);
+    return `/context-radar?${parameters.toString()}`;
+  }, [request]);
 
   function updateRequest(patch: Partial<ForecastRequest>) {
     setError(null);
@@ -118,7 +125,7 @@ export function ForecastLab() {
   return <div className="workspace fx-workspace"><header className="workspace-header fx-header"><div><span className="eyebrow">{ui.forecastLab.header.eyebrow}</span><h1>{ui.forecastLab.header.title}</h1><p>{ui.forecastLab.header.subtitle}</p></div>{activeDataset && <div className="fx-active-dataset"><Database size={16} /><span><small>{ui.demandExplorer.header.activeDataset}</small><strong>{activeDataset.name}</strong></span>{preflight && <div className="fx-active-cutoffs"><i>{ui.forecastLab.header.cutoff}: {formatSeriesDate(preflight.data_cutoff)}</i><i>{ui.forecastLab.header.trainingCutoff}: {formatSeriesDate(preflight.training_cutoff)}</i></div>}</div>}</header>
     {loadingDatasets && <div className="fx-page-loading"><RefreshCw size={18} />{ui.demandExplorer.loading}</div>}
     {!loadingDatasets && datasets.length === 0 && <section className="fx-empty"><FlaskConical size={30} /><h2>{ui.forecastLab.empty.title}</h2><p>{ui.forecastLab.empty.description}</p><Link href="/data-studio" className="dx-primary-action">{ui.forecastLab.empty.action}</Link></section>}
-    {!loadingDatasets && dimensions && <><ForecastSelector datasets={datasets} dimensions={dimensions} request={request} disabled={running} onChange={updateRequest} /><PreflightPanel preflight={preflight} loading={loadingPreflight} />{error && <div className="ds-error-message">{error}</div>}<section className="fx-run-zone"><button type="button" disabled={running || loadingPreflight || !preflight} onClick={() => void execute()}>{running ? <RefreshCw size={17} /> : <FlaskConical size={17} />}{running ? ui.forecastLab.run.running : ui.forecastLab.run.action}</button>{running && <div className="fx-run-stages">{ui.forecastLab.run.stages.map((stage) => <span key={stage}>{stage}</span>)}</div>}<small>{ui.forecastLab.run.syncNote}</small></section>
+    {!loadingDatasets && dimensions && <><ForecastSelector datasets={datasets} dimensions={dimensions} request={request} disabled={running} onChange={updateRequest} /><div className="fx-context-notice"><Radar size={15} /><span>{ui.forecastLab.header.contextBoundary}</span><Link href={contextRadarUrl}>{ui.forecastLab.header.openContextRadar}</Link></div><PreflightPanel preflight={preflight} loading={loadingPreflight} />{error && <div className="ds-error-message">{error}</div>}<section className="fx-run-zone"><button type="button" disabled={running || loadingPreflight || !preflight} onClick={() => void execute()}>{running ? <RefreshCw size={17} /> : <FlaskConical size={17} />}{running ? ui.forecastLab.run.running : ui.forecastLab.run.action}</button>{running && <div className="fx-run-stages">{ui.forecastLab.run.stages.map((stage) => <span key={stage}>{stage}</span>)}</div>}<small>{ui.forecastLab.run.syncNote}</small></section>
       {run && run.status === "failed" && <div className="ds-error-message">{ui.forecastLab.run.failed}</div>}
       {run && champion && <><ChampionCard run={run} champion={champion} /><Leaderboard models={run.models} frequency={run.frequency} selectedId={selectedModel?.id ?? null} onSelect={setSelectedModel} /><ForecastChart run={run} /><div className="fx-audit-grid"><ModelDetail model={selectedModel} /><BacktestingView model={selectedModel ?? champion} /></div><p className="fx-disclaimer">{ui.forecastLab.disclaimer}</p></>}
     </>}

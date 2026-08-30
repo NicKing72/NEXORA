@@ -51,6 +51,11 @@
 .fx-cutoff { max-width: 40rem; color: var(--text-secondary); font-size: 0.72rem; font-weight: 550; text-align: right; }
 .fx-cutoff { display: grid; gap: 0.22rem; }
 
+.fx-context-notice { display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.8rem; border: 1px solid rgba(140,198,189,0.15); border-radius: 0.55rem; background: rgba(140,198,189,0.035); color: var(--text-secondary); font-size: 0.72rem; }
+.fx-context-notice svg { flex: 0 0 auto; color: var(--accent); }
+.fx-context-notice span { flex: 1; }
+.fx-context-notice a { color: var(--accent-strong); font-weight: 650; white-space: nowrap; }
+
 .fx-filter-grid {
   display: grid;
   grid-template-columns: 1.25fr repeat(5, minmax(8rem, 0.82fr));
