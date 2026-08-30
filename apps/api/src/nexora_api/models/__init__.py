@@ -26,6 +26,15 @@ from nexora_api.models.scenario import (
     ScenarioPoint,
     ScenarioRun,
 )
+from nexora_api.models.scor import (
+    ScorAssessmentRun,
+    ScorAudit,
+    ScorBenchmarkProfile,
+    ScorBenchmarkTarget,
+    ScorMetricInput,
+    ScorMetricResult,
+    ScorProcessResult,
+)
 
 __all__ = [
     "Base",
@@ -50,4 +59,11 @@ __all__ = [
     "ScenarioAudit",
     "ScenarioPoint",
     "ScenarioRun",
+    "ScorAssessmentRun",
+    "ScorAudit",
+    "ScorBenchmarkProfile",
+    "ScorBenchmarkTarget",
+    "ScorMetricInput",
+    "ScorMetricResult",
+    "ScorProcessResult",
 ]

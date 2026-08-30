@@ -9,6 +9,7 @@ import { DemandExplorer } from "@/components/demand-explorer/demand-explorer";
 import { ForecastLab } from "@/components/forecast-lab/forecast-lab";
 import { PlaceholderView } from "@/components/placeholder-view";
 import { ScenarioLab } from "@/components/scenario-lab/scenario-lab";
+import { ScorDiagnostic } from "@/components/scor-diagnostic/scor-diagnostic";
 import { sections } from "@/lib/navigation";
 
 type SectionPageProps = {
@@ -60,6 +61,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "decision-center") {
     return <DecisionCenter />;
+  }
+
+  if (section.slug === "scor-diagnostic") {
+    return <ScorDiagnostic />;
   }
 
   return <PlaceholderView section={section} />;

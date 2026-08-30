@@ -11,6 +11,7 @@ import "../styles/forecast-lab.css";
 import "../styles/context-radar.css";
 import "../styles/scenario-lab.css";
 import "../styles/decision-center.css";
+import "../styles/scor-diagnostic.css";
 
 export const metadata: Metadata = {
   title: {

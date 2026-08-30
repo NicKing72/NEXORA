@@ -12,6 +12,7 @@ NEXORA is a professional demand-intelligence workspace. It combines auditable da
 - **Context Radar:** manual and reproducible demo signals, deterministic scope matching, provenance, anti-leakage cutoffs, observed-impact evidence, and strict-scope historical analogies.
 - **Scenario Lab:** conditional, auditable simulations over an immutable official Forecast Run.
 - **Decision Center:** ranked recommendations with evidence, limitations, lifecycle, provenance, and optional baseline-versus-scenario comparison.
+- **SCOR Diagnostic:** auditable six-month KPI calculations for PLAN, SOURCE, MAKE, DELIVER, and RETURN, with optional company targets and cautious critical-link prioritization.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -141,6 +142,16 @@ After completing a Forecast Run, with an optional stored scenario:
 
 Decision Engine does not execute orders or calculate optimal quantities. Inventory position, lead time, MOQ, costs, and service targets are explicitly listed as missing whenever they are unavailable. Contextual associations remain descriptive rather than causal.
 
+### Run a quantitative SCOR diagnostic
+
+1. Open [http://localhost:3000/scor-diagnostic](http://localhost:3000/scor-diagnostic).
+2. Choose **Regenerar demo** to create the reproducible six-month assessment, or **Nuevo diagnóstico** to enter raw company aggregates.
+3. Select **Calcular indicadores** and inspect the process map, KPI matrix, original inputs, substituted formula, evidence state, source, and engine version.
+4. Select a configured benchmark profile to evaluate optional gaps. The controlled tie profile demonstrates that NEXORA never forces a winner.
+5. Reload the page to recover the persisted assessment and audit trail.
+
+NEXORA preserves missing inputs and zero denominators as explicit evidence states. For monthly ratios it divides the six-month sum of numerators by the sum of denominators; it never averages monthly percentages. The NEXORA Gap Score is an internal, explainable distance-to-target measure—not an official SCOR score. This milestone does not optimize logistics or change forecasts.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -168,4 +179,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules and auditability, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
