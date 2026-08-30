@@ -1,10 +1,10 @@
 # Context Engine Foundation
 
-Milestone 4A introduces an auditable contextual-signal layer. Signals are descriptive evidence only: they do not enter Forecast Core, estimate demand impact, or imply causality.
+Milestone 4A introduced the auditable contextual-signal layer. Milestone 4B adds a separate descriptive impact service; signals and estimates still do not enter Forecast Core or imply causality.
 
 ## Signal contract
 
-`ContextSignal` persists a UUID, optional READY dataset association, extensible `signal_type`, title and description, event window, observation and availability timestamps, lifecycle status, provenance, confidence, optional intensity, knowledge type, multidimensional scope, safe JSON metadata, and UTC audit timestamps. `impact_status` remains `not_estimated`.
+`ContextSignal` persists a UUID, optional READY dataset association, extensible `signal_type`, title and description, event window, observation and availability timestamps, lifecycle status, provenance, confidence, optional intensity, knowledge type, multidimensional scope, safe JSON metadata, and UTC audit timestamps. `impact_status` reflects the latest evidence state while immutable estimate revisions live separately.
 
 Families are `commercial`, `competitor`, `calendar`, `weather`, `market`, `digital`, `operations`, `supply_chain`, `event`, `news`, `macro`, and `custom`. Signal types remain validated snake-case strings, so adding a new type does not require a schema migration.
 
@@ -54,4 +54,4 @@ Nine fixed signals are generated with UUID5 identifiers derived from the demo da
 
 ## Current limitations
 
-There is no scraping, external API, LLM, estimated impact, causal inference, contextual forecasting, applied scenario simulation, or forecast modification. Forecast Core remains univariate. The audit table prepares future change-history features but 4A does not expose a full audit-history UI.
+There is no scraping, external API, LLM, causal inference, contextual forecasting, applied scenario simulation, or forecast modification. Forecast Core remains univariate. See `docs/context-impact.md` for the descriptive 4B methodology and its limitations.

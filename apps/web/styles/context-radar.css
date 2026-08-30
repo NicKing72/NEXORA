@@ -141,7 +141,21 @@
 .cx-impact span { display: grid; gap: 0.15rem; }
 .cx-impact small { color: var(--text-muted); font-size: 0.64rem; text-transform: uppercase; }
 .cx-impact strong { color: var(--warning); font-size: 0.78rem; }
+.cx-impact strong em { color: var(--text-secondary); font-size: 0.68rem; font-style: normal; font-weight: 500; }
 .cx-impact p { margin: 0.1rem 0 0; color: var(--text-secondary); font-size: 0.7rem; }
+.cx-impact--estimated { border-color: rgba(140,198,189,0.28); background: rgba(140,198,189,0.055); color: var(--accent); }
+.cx-impact--estimated strong { color: var(--accent-strong); font-size: 1rem; }
+.cx-impact--analogy { border-color: rgba(131,157,202,0.28); background: rgba(131,157,202,0.055); color: #aebfdd; }
+.cx-impact--analogy strong { color: #c6d2e8; }
+.cx-impact--censored { border-color: rgba(208,155,145,0.3); background: rgba(208,155,145,0.05); color: #d09b91; }
+.cx-impact--censored strong { color: #d8aaa1; }
+.cx-impact-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; margin: 0.5rem 0 0.35rem; }
+.cx-impact-metrics > span { display: grid; gap: 0.12rem; padding: 0.4rem 0.5rem; border: 1px solid var(--cx-line); border-radius: 0.4rem; background: rgba(6,10,11,0.22); }
+.cx-impact-metrics b { color: var(--text); font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+.cx-impact details { margin-top: 0.35rem; color: var(--text-secondary); font-size: 0.68rem; }
+.cx-impact summary { cursor: pointer; color: var(--accent); font-weight: 650; }
+.cx-impact-action { display: inline-flex; align-items: center; gap: 0.35rem; width: max-content; min-height: 2rem; margin-top: 0.45rem; padding: 0 0.6rem; border: 1px solid rgba(216,171,115,0.3); border-radius: 0.42rem; background: transparent; color: var(--warning); cursor: pointer; font-size: 0.68rem; font-weight: 650; }
+.cx-impact-action:disabled { cursor: wait; opacity: 0.65; }
 .cx-audit-stamps { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; margin-top: 0.65rem; color: var(--text-muted); font-size: 0.62rem; }
 .cx-detail-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.8rem; }
 .cx-detail-actions button,
@@ -213,6 +227,7 @@
   .cx-safety { display: none; }
   .cx-era-track { grid-template-columns: 1fr; }
   .cx-detail dl { grid-template-columns: 1fr; }
+  .cx-impact-metrics { grid-template-columns: 1fr; }
   .cx-detail dl > div:nth-child(odd) { border-right: 0; }
   .cx-demo-callout { align-items: flex-start; flex-direction: column; }
   .cx-demo-callout button { width: 100%; }

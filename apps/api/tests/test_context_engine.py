@@ -266,7 +266,7 @@ def test_demo_context_is_reproducible_and_complete(client: TestClient) -> None:
     assert second.status_code == 200, second.text
     first_signals = first.json()["signals"]
     second_signals = second.json()["signals"]
-    assert first.json()["generated"] == 9
+    assert first.json()["generated"] == 10
     assert [signal["id"] for signal in first_signals] == [
         signal["id"] for signal in second_signals
     ]
@@ -287,6 +287,20 @@ def test_demo_context_is_reproducible_and_complete(client: TestClient) -> None:
     }
     holiday = next(signal for signal in first_signals if signal["signal_type"] == "holiday")
     assert holiday["event_start"] == "2026-12-25T05:00:00+00:00"
+    planned = next(
+        signal
+        for signal in first_signals
+        if signal["title"] == "Promoción competidora planificada Lima Centro"
+    )
+    historical = next(
+        signal
+        for signal in first_signals
+        if signal["title"] == "Promoción competidora observada"
+    )
+    assert planned["knowledge_type"] == "known_future"
+    assert planned["available_at"] < planned["event_start"]
+    assert planned["category"] == historical["category"] == "Essentials"
+    assert planned["location"] == historical["location"] == "Lima Centro"
 
 
 def test_demo_regeneration_does_not_remove_manual_signal(client: TestClient) -> None:
@@ -298,7 +312,7 @@ def test_demo_regeneration_does_not_remove_manual_signal(client: TestClient) -> 
         "/api/v1/context-signals", params={"dataset_id": dataset["id"]}
     ).json()
     assert manual["id"] in {signal["id"] for signal in listed}
-    assert len(listed) == 10
+    assert len(listed) == 11
 
 
 def test_demo_context_rejects_non_demo_dataset(client: TestClient) -> None:

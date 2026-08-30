@@ -1,6 +1,6 @@
 # NEXORA — Demand Intelligence System
 
-NEXORA is a professional demand-intelligence workspace. Milestone 4A adds an auditable Context Engine and Context Radar while keeping Forecast Core strictly univariate. Context signals are visible evidence only: they do not change forecasts or estimate demand impact.
+NEXORA is a professional demand-intelligence workspace. Milestone 4B adds an auditable Context Impact & Evidence Engine while keeping Forecast Core strictly univariate. Context estimates describe historical associations and never change forecasts or claim causality.
 
 ## What is included
 
@@ -9,7 +9,7 @@ NEXORA is a professional demand-intelligence workspace. Milestone 4A adds an aud
 - **Data Studio:** CSV, XLSX, and XLS import; demo data; mapping; quality audit; readiness score.
 - **Demand Explorer:** product, location, category, date, and frequency filters; interactive history; quality markers; descriptive pattern analysis.
 - **Forecast Lab:** explicit training preparation, seven statistical candidates, temporal backtesting, auditable Champion ranking, empirical intervals, and persisted runs.
-- **Context Radar:** manual and reproducible demo signals, deterministic scope matching, provenance, lifecycle status, and anti-leakage availability cutoffs.
+- **Context Radar:** manual and reproducible demo signals, deterministic scope matching, provenance, anti-leakage cutoffs, observed-impact evidence, and strict-scope historical analogies.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -108,7 +108,9 @@ After preparing the demo dataset or another READY dataset:
 3. For the synthetic demo dataset, choose **Regenerar contexto demo** to load the fixed contextual examples.
 4. Set **Disponible al corte** to inspect only what NEXORA knew at that instant. Event dates do not bypass this availability rule.
 5. Select any signal to review family, event time, availability, provenance, confidence, scope, status, and deterministic match reasons.
-6. Choose **Nueva señal** to register a manual signal. Manual signals are confirmed by default and never alter the demand forecast.
+6. Choose **Estimar evidencia** to compare a historical event with its local temporal baseline. Review baseline, observed demand, evidence score, method, contamination, and insufficiency reasons.
+7. Future signals show a descriptive historical range when a compatible prior estimate exists, with the exact sample count visible. Stockouts are marked as potentially censored and never transferred as expected demand impact.
+8. Choose **Nueva señal** to register a manual signal. Manual signals are confirmed by default and never alter the demand forecast.
 
 Demand Explorer provides **Ver contexto de esta serie**, preserving product, location, and category in the URL. Forecast Lab provides the same contextual access with an explicit notice that its current results remain univariate. Context data and audit records stay in the local SQLite database under the ignored `data/` directory.
 
@@ -139,4 +141,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for temporal safety and relevance, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

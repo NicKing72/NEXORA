@@ -259,13 +259,53 @@ def regenerate_demo_context(db: Session, dataset_id: str) -> list[ContextSignal]
         )
         .all()
     )
-    for signal in existing:
-        db.delete(signal)
-    db.flush()
-    signals = build_demo_signals(dataset_id)
-    for signal in signals:
-        db.add(signal)
-        _audit(db, signal, "demo_generated", {"demo_key": signal.metadata_json["demo_key"]})
+    existing_by_id = {signal.id: signal for signal in existing}
+    blueprints = build_demo_signals(dataset_id)
+    desired_ids = {signal.id for signal in blueprints}
+    for obsolete in existing:
+        if obsolete.id not in desired_ids:
+            db.delete(obsolete)
+
+    signals: list[ContextSignal] = []
+    persisted_fields = (
+        "signal_family",
+        "signal_type",
+        "title",
+        "description",
+        "event_start",
+        "event_end",
+        "observed_at",
+        "available_at",
+        "status",
+        "source_type",
+        "source_name",
+        "source_reference",
+        "confidence",
+        "intensity",
+        "knowledge_type",
+        "scope_type",
+        "country",
+        "region",
+        "product",
+        "category",
+        "location",
+        "channel",
+        "market",
+        "metadata_json",
+    )
+    for blueprint in blueprints:
+        signal = existing_by_id.get(blueprint.id)
+        action = "demo_refreshed"
+        if signal is None:
+            signal = blueprint
+            db.add(signal)
+            action = "demo_generated"
+        else:
+            for field in persisted_fields:
+                setattr(signal, field, getattr(blueprint, field))
+            signal.updated_at = _now()
+        _audit(db, signal, action, {"demo_key": signal.metadata_json["demo_key"]})
+        signals.append(signal)
     db.commit()
     for signal in signals:
         db.refresh(signal)

@@ -221,7 +221,14 @@ class ContextSignalResponse(BaseModel):
     channel: str | None
     market: str | None
     metadata: dict[str, object]
-    impact_status: Literal["not_estimated"]
+    impact_status: Literal[
+        "not_estimated",
+        "estimated",
+        "insufficient_evidence",
+        "not_observable",
+        "not_applicable",
+        "pending",
+    ]
     created_at: datetime
     updated_at: datetime
 

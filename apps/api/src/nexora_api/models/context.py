@@ -60,6 +60,9 @@ class ContextSignal(Base):
     audit_entries: Mapped[list[ContextSignalAudit]] = relationship(
         back_populates="signal", cascade="all, delete-orphan"
     )
+    impact_estimates: Mapped[list[ContextImpactEstimate]] = relationship(
+        back_populates="signal", cascade="all, delete-orphan"
+    )
 
 
 class ContextSignalAudit(Base):
@@ -77,3 +80,45 @@ class ContextSignalAudit(Base):
     created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now)
 
     signal: Mapped[ContextSignal] = relationship(back_populates="audit_entries")
+
+
+class ContextImpactEstimate(Base):
+    """Immutable, reproducible estimate of an observed contextual association."""
+
+    __tablename__ = "context_impact_estimates"
+    __table_args__ = (
+        Index("idx_context_impact_signal_estimated", "signal_id", "estimated_at"),
+        Index("idx_context_impact_dataset_status", "dataset_id", "status"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    signal_id: Mapped[str] = mapped_column(
+        ForeignKey("context_signals.id", ondelete="CASCADE"), nullable=False
+    )
+    dataset_id: Mapped[str] = mapped_column(
+        ForeignKey("datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    scope_json: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    frequency: Mapped[str] = mapped_column(String(20))
+    method: Mapped[str] = mapped_column(String(80))
+    status: Mapped[str] = mapped_column(String(30))
+    direction: Mapped[str] = mapped_column(String(20), default="unknown")
+    baseline_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    observed_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    absolute_delta: Mapped[float | None] = mapped_column(Float, nullable=True)
+    relative_delta: Mapped[float | None] = mapped_column(Float, nullable=True)
+    sample_size: Mapped[int] = mapped_column(Integer, default=0)
+    event_periods: Mapped[int] = mapped_column(Integer, default=0)
+    reference_periods: Mapped[int] = mapped_column(Integer, default=0)
+    evidence_score: Mapped[float] = mapped_column(Float, default=0.0)
+    evidence_level: Mapped[str] = mapped_column(String(20), default="insufficient")
+    data_cutoff: Mapped[datetime] = mapped_column(UTCDateTime())
+    availability_cutoff: Mapped[datetime] = mapped_column(UTCDateTime())
+    estimated_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utc_now)
+    reason_code: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    evidence_breakdown: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    quality_summary: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+    input_snapshot: Mapped[dict[str, object]] = mapped_column(JSON, default=dict)
+
+    signal: Mapped[ContextSignal] = relationship(back_populates="impact_estimates")

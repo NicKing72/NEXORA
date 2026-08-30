@@ -54,6 +54,7 @@
 .fx-context-notice { display: flex; align-items: center; gap: 0.55rem; padding: 0.65rem 0.8rem; border: 1px solid rgba(140,198,189,0.15); border-radius: 0.55rem; background: rgba(140,198,189,0.035); color: var(--text-secondary); font-size: 0.72rem; }
 .fx-context-notice svg { flex: 0 0 auto; color: var(--accent); }
 .fx-context-notice span { flex: 1; }
+.fx-context-notice span strong { display: block; margin-bottom: 0.18rem; color: var(--text); font-size: 0.74rem; }
 .fx-context-notice a { color: var(--accent-strong); font-weight: 650; white-space: nowrap; }
 
 .fx-filter-grid {

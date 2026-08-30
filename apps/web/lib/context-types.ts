@@ -16,6 +16,8 @@ export type KnowledgeType = "observed" | "known_future" | "forecasted_external" 
 export type SignalStatus = "detected" | "reviewed" | "confirmed" | "dismissed" | "expired";
 export type SourceType = "manual" | "company_data" | "api" | "web" | "system";
 export type ScopeType = "global" | "country" | "region" | "location" | "category" | "product" | "channel" | "market" | "custom";
+export type ImpactStatus = "not_estimated" | "estimated" | "insufficient_evidence" | "not_observable" | "not_applicable" | "pending";
+export type EvidenceLevel = "insufficient" | "low" | "moderate" | "high";
 
 export type ContextSignal = {
   id: string;
@@ -44,9 +46,52 @@ export type ContextSignal = {
   channel: string | null;
   market: string | null;
   metadata: Record<string, unknown>;
-  impact_status: "not_estimated";
+  impact_status: ImpactStatus;
   created_at: string;
   updated_at: string;
+};
+
+export type ContextImpactEstimate = {
+  id: string;
+  signal_id: string;
+  dataset_id: string;
+  scope: Record<string, unknown>;
+  frequency: string;
+  method: string;
+  status: Exclude<ImpactStatus, "not_estimated">;
+  direction: "increase" | "decrease" | "neutral" | "unknown";
+  baseline_value: number | null;
+  observed_value: number | null;
+  absolute_delta: number | null;
+  relative_delta: number | null;
+  sample_size: number;
+  event_periods: number;
+  reference_periods: number;
+  evidence_score: number;
+  evidence_level: EvidenceLevel;
+  data_cutoff: string;
+  availability_cutoff: string;
+  estimated_at: string;
+  reason_code: string | null;
+  notes: string | null;
+  evidence_breakdown: {
+    formula_version?: string;
+    components?: Record<string, number>;
+  };
+  quality_summary: Record<string, number | boolean>;
+  input_snapshot: Record<string, unknown>;
+};
+
+export type ContextAnalogy = {
+  signal_id: string;
+  status: "available" | "insufficient_evidence" | "not_applicable";
+  comparable_events: number;
+  minimum_relative_delta: number | null;
+  median_relative_delta: number | null;
+  maximum_relative_delta: number | null;
+  estimate_ids: string[];
+  reason_code: string | null;
+  notes: string;
 };
 
 export type RelevanceReason = { dimension: string; expected: string; actual: string };

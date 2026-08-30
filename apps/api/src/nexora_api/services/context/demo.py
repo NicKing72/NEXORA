@@ -46,9 +46,30 @@ DEMO_BLUEPRINTS: tuple[dict[str, object], ...] = (
         "knowledge_type": "observed",
         "scope_type": "category",
         "category": "Essentials",
+        "location": "Lima Centro",
         "confidence": 0.72,
         "intensity": 0.5,
         "status": "reviewed",
+    },
+    {
+        "key": "competitor-promotion-planned",
+        "signal_family": "competitor",
+        "signal_type": "competitor_promotion",
+        "title": "Promoción competidora planificada Lima Centro",
+        "description": (
+            "Promoción competidora futura conocida para la categoría Essentials en "
+            "Lima Centro; solo admite analogía histórica descriptiva."
+        ),
+        "event_start": "2026-09-05T00:00:00",
+        "event_end": "2026-09-12T23:59:59",
+        "observed_at": None,
+        "available_at": "2026-08-20T09:00:00",
+        "knowledge_type": "known_future",
+        "scope_type": "category",
+        "category": "Essentials",
+        "location": "Lima Centro",
+        "confidence": 0.78,
+        "intensity": 0.5,
     },
     {
         "key": "holiday",

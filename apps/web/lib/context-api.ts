@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api-client";
-import type { ContextFilters, ContextSignal, ManualSignalInput, RelevantSignal } from "@/lib/context-types";
+import type { ContextAnalogy, ContextFilters, ContextImpactEstimate, ContextSignal, ManualSignalInput, RelevantSignal } from "@/lib/context-types";
 
 function filterParameters(filters: ContextFilters): URLSearchParams {
   const parameters = new URLSearchParams();
@@ -50,4 +50,36 @@ export function regenerateDemoContext(datasetId: string): Promise<{ generated: n
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ dataset_id: datasetId }),
   });
+}
+
+export function getContextImpact(signalId: string, signal?: AbortSignal): Promise<ContextImpactEstimate | null> {
+  return apiRequest(`/api/v1/context-impact/signals/${signalId}`, { signal });
+}
+
+export function estimateContextImpact(signalId: string): Promise<ContextImpactEstimate> {
+  return apiRequest(`/api/v1/context-impact/signals/${signalId}/estimate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ frequency: "auto" }),
+  });
+}
+
+export function getContextAnalogies(signalId: string, signal?: AbortSignal): Promise<ContextAnalogy> {
+  return apiRequest(`/api/v1/context-impact/signals/${signalId}/analogies`, { signal });
+}
+
+export function getDatasetContextImpacts(datasetId: string, signal?: AbortSignal): Promise<ContextImpactEstimate[]> {
+  return apiRequest<{ estimates: ContextImpactEstimate[] }>(`/api/v1/context-impact/datasets/${datasetId}`, { signal }).then((result) => result.estimates);
+}
+
+export function getRelevantSignalsForSeries(
+  datasetId: string,
+  selection: { product: string | null; location: string | null; category: string | null },
+  signal?: AbortSignal,
+): Promise<RelevantSignal[]> {
+  const parameters = new URLSearchParams({ dataset_id: datasetId });
+  if (selection.product) parameters.set("product", selection.product);
+  if (selection.location) parameters.set("location", selection.location);
+  if (selection.category) parameters.set("category", selection.category);
+  return apiRequest(`/api/v1/context-signals/relevant?${parameters.toString()}`, { signal });
 }
