@@ -1,6 +1,6 @@
 "use client";
 
-import { Database, FlaskConical, Radar, RefreshCw } from "lucide-react";
+import { BrainCircuit, Database, FlaskConical, Radar, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -139,7 +139,7 @@ export function ForecastLab() {
     {!loadingDatasets && datasets.length === 0 && <section className="fx-empty"><FlaskConical size={30} /><h2>{ui.forecastLab.empty.title}</h2><p>{ui.forecastLab.empty.description}</p><Link href="/data-studio" className="dx-primary-action">{ui.forecastLab.empty.action}</Link></section>}
     {!loadingDatasets && dimensions && <><ForecastSelector datasets={datasets} dimensions={dimensions} request={request} disabled={running} onChange={updateRequest} /><div className="fx-context-notice"><Radar size={15} /><span>{contextSignalCount !== null && <strong>{ui.forecastLab.header.relevantSignals.replace("{count}", String(contextSignalCount))}</strong>}{ui.forecastLab.header.contextBoundary}</span><Link href={contextRadarUrl}>{ui.forecastLab.header.openContextRadar}</Link></div><PreflightPanel preflight={preflight} loading={loadingPreflight} />{error && <div className="ds-error-message">{error}</div>}<section className="fx-run-zone"><button type="button" disabled={running || loadingPreflight || !preflight} onClick={() => void execute()}>{running ? <RefreshCw size={17} /> : <FlaskConical size={17} />}{running ? ui.forecastLab.run.running : ui.forecastLab.run.action}</button>{running && <div className="fx-run-stages">{ui.forecastLab.run.stages.map((stage) => <span key={stage}>{stage}</span>)}</div>}<small>{ui.forecastLab.run.syncNote}</small></section>
       {run && run.status === "failed" && <div className="ds-error-message">{ui.forecastLab.run.failed}</div>}
-      {run && champion && <><ChampionCard run={run} champion={champion} /><Leaderboard models={run.models} frequency={run.frequency} selectedId={selectedModel?.id ?? null} onSelect={setSelectedModel} /><ForecastChart run={run} /><div className="fx-audit-grid"><ModelDetail model={selectedModel} /><BacktestingView model={selectedModel ?? champion} /></div><p className="fx-disclaimer">{ui.forecastLab.disclaimer}</p></>}
+      {run && champion && <><ChampionCard run={run} champion={champion} /><div className="fx-context-notice"><BrainCircuit size={15} /><span><strong>{ui.decisionCenter.links.fromForecast}</strong>Las recomendaciones usarán este Forecast Run sin modificarlo.</span><Link href={`/decision-center?forecast_run_id=${run.id}`}>{ui.decisionCenter.links.fromForecast}</Link></div><Leaderboard models={run.models} frequency={run.frequency} selectedId={selectedModel?.id ?? null} onSelect={setSelectedModel} /><ForecastChart run={run} /><div className="fx-audit-grid"><ModelDetail model={selectedModel} /><BacktestingView model={selectedModel ?? champion} /></div><p className="fx-disclaimer">{ui.forecastLab.disclaimer}</p></>}
     </>}
   </div>;
 }

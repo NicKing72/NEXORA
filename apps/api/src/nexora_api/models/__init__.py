@@ -14,6 +14,12 @@ from nexora_api.models.dataset import (
     ForecastPoint,
     ForecastRun,
 )
+from nexora_api.models.decision import (
+    DecisionAudit,
+    DecisionEvidence,
+    DecisionRecommendation,
+    DecisionRun,
+)
 from nexora_api.models.scenario import (
     ScenarioAssumption,
     ScenarioAudit,
@@ -32,6 +38,10 @@ __all__ = [
     "DataTransformation",
     "Dataset",
     "DatasetColumn",
+    "DecisionAudit",
+    "DecisionEvidence",
+    "DecisionRecommendation",
+    "DecisionRun",
     "ForecastFoldResult",
     "ForecastModelResult",
     "ForecastPoint",

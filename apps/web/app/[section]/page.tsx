@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CommandCenter } from "@/components/command-center";
 import { ContextRadar } from "@/components/context-radar/context-radar";
 import { DataStudio } from "@/components/data-studio/data-studio";
+import { DecisionCenter } from "@/components/decision-center/decision-center";
 import { DemandExplorer } from "@/components/demand-explorer/demand-explorer";
 import { ForecastLab } from "@/components/forecast-lab/forecast-lab";
 import { PlaceholderView } from "@/components/placeholder-view";
@@ -55,6 +56,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "scenario-lab") {
     return <ScenarioLab />;
+  }
+
+  if (section.slug === "decision-center") {
+    return <DecisionCenter />;
   }
 
   return <PlaceholderView section={section} />;

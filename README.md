@@ -1,6 +1,6 @@
 # NEXORA — Demand Intelligence System
 
-NEXORA is a professional demand-intelligence workspace. Milestone 4B adds an auditable Context Impact & Evidence Engine while keeping Forecast Core strictly univariate. Context estimates describe historical associations and never change forecasts or claim causality.
+NEXORA is a professional demand-intelligence workspace. It combines auditable data preparation, univariate forecasting, contextual evidence, conditional scenarios, and deterministic decision support. Recommendations never execute actions, modify forecasts, or claim causality.
 
 ## What is included
 
@@ -10,6 +10,8 @@ NEXORA is a professional demand-intelligence workspace. Milestone 4B adds an aud
 - **Demand Explorer:** product, location, category, date, and frequency filters; interactive history; quality markers; descriptive pattern analysis.
 - **Forecast Lab:** explicit training preparation, seven statistical candidates, temporal backtesting, auditable Champion ranking, empirical intervals, and persisted runs.
 - **Context Radar:** manual and reproducible demo signals, deterministic scope matching, provenance, anti-leakage cutoffs, observed-impact evidence, and strict-scope historical analogies.
+- **Scenario Lab:** conditional, auditable simulations over an immutable official Forecast Run.
+- **Decision Center:** ranked recommendations with evidence, limitations, lifecycle, provenance, and optional baseline-versus-scenario comparison.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -126,6 +128,19 @@ After completing at least one Forecast Run:
 
 Scenario Engine applies assumptions in their visible order and never retrains or overwrites the Champion. Supply restrictions represent potentially censored sales rather than invented lost demand. Historical context evidence remains descriptive, subject to cutoff protection, and does not prove causality. Simulations do not guarantee future results.
 
+### Review decision support
+
+After completing a Forecast Run, with an optional stored scenario:
+
+1. Open [http://localhost:3000/decision-center](http://localhost:3000/decision-center).
+2. Select the official Forecast Run, decision cutoff, and optional hypothetical scenario.
+3. Review preflight inputs and select **Generar recomendaciones**.
+4. Inspect priority, support, evidence, limitations, and provenance for each recommendation.
+5. When a scenario is present, compare it with the immutable official baseline; it never becomes the official forecast.
+6. Change a recommendation lifecycle state when reviewed, then reload to confirm persistence.
+
+Decision Engine does not execute orders or calculate optimal quantities. Inventory position, lead time, MOQ, costs, and service targets are explicitly listed as missing whenever they are unavailable. Contextual associations remain descriptive rather than causal.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -153,4 +168,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules and auditability, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

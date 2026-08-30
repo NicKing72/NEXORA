@@ -1,6 +1,6 @@
 "use client";
 
-import { Database, Plus, Radar, RefreshCw, Sparkles } from "lucide-react";
+import { BrainCircuit, Database, Plus, Radar, RefreshCw, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -11,6 +11,8 @@ import { RelevanceView } from "@/components/context-radar/relevance-view";
 import { SignalDetail } from "@/components/context-radar/signal-detail";
 import { SignalForm } from "@/components/context-radar/signal-form";
 import { createContextSignal, estimateContextImpact, getContextAnalogies, getContextSignals, getDatasetContextImpacts, getRelevantSignals, regenerateDemoContext, updateContextSignalStatus } from "@/lib/context-api";
+import { listDecisionForecasts } from "@/lib/decision-api";
+import type { ForecastRunSummary } from "@/lib/decision-types";
 import type { ContextAnalogy, ContextFilters, ContextImpactEstimate, ContextSignal, ManualSignalInput, RelevantSignal } from "@/lib/context-types";
 import { ui } from "@/lib/i18n";
 import { getReadyDatasets, getSeriesDimensions } from "@/lib/series-api";
@@ -26,6 +28,7 @@ const INITIAL_FILTERS: ContextFilters = { datasetId: "", product: "", location: 
 
 export function ContextRadar() {
   const [datasets, setDatasets] = useState<ReadyDatasetSummary[]>([]);
+  const [decisionForecasts, setDecisionForecasts] = useState<ForecastRunSummary[]>([]);
   const [dimensions, setDimensions] = useState<SeriesDimensions | null>(null);
   const [filters, setFilters] = useState<ContextFilters>(INITIAL_FILTERS);
   const [signals, setSignals] = useState<ContextSignal[]>([]);
@@ -45,6 +48,15 @@ export function ContextRadar() {
   useEffect(() => {
     queryRef.current = new URLSearchParams(window.location.search);
     const controller = new AbortController();
+    void listDecisionForecasts()
+      .then((forecastItems) => {
+        if (!controller.signal.aborted) {
+          setDecisionForecasts(forecastItems.filter((item) => item.status === "completed"));
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setDecisionForecasts([]);
+      });
     void getReadyDatasets(controller.signal).then((items) => {
       const requested = queryRef.current?.get("dataset_id");
       const datasetId = items.some((item) => item.id === requested) ? requested! : items[0]?.id ?? "";
@@ -96,6 +108,7 @@ export function ContextRadar() {
   }, [dimensions, filters, revision]);
 
   const activeDataset = useMemo(() => datasets.find((item) => item.id === filters.datasetId) ?? null, [datasets, filters.datasetId]);
+  const decisionForecastId = useMemo(() => decisionForecasts.find((item) => item.dataset_id === filters.datasetId)?.id ?? null, [decisionForecasts, filters.datasetId]);
   const visibleIds = useMemo(() => new Set(signals.map((item) => item.id)), [signals]);
   const visibleRelevant = useMemo(() => relevant.filter((item) => visibleIds.has(item.signal.id)), [relevant, visibleIds]);
   const selectedImpact = useMemo(() => impacts.find((item) => item.signal_id === selected?.id) ?? null, [impacts, selected]);
@@ -142,7 +155,7 @@ export function ContextRadar() {
     }
   }
 
-  return <div className="workspace cx-workspace"><header className="workspace-header cx-header"><div><span className="eyebrow">{ui.contextRadar.header.eyebrow}</span><h1>{ui.contextRadar.header.title}</h1><p>{ui.contextRadar.header.subtitle}</p></div><div className="cx-header-actions">{activeDataset && <div className="cx-active-dataset"><Database size={16} /><span><small>{ui.contextRadar.header.activeDataset}</small><strong>{activeDataset.name}</strong><i>{ui.contextRadar.header.univariate}</i></span></div>}{activeDataset?.source_type === "demo" && <button type="button" className="cx-secondary-action" disabled={loading} onClick={() => void loadDemo()}><Sparkles size={15} />{ui.contextRadar.actions.demo}</button>}{dimensions && <button type="button" className="cx-primary-action" onClick={() => setFormOpen(true)}><Plus size={16} />{ui.contextRadar.actions.newSignal}</button>}</div></header>
+  return <div className="workspace cx-workspace"><header className="workspace-header cx-header"><div><span className="eyebrow">{ui.contextRadar.header.eyebrow}</span><h1>{ui.contextRadar.header.title}</h1><p>{ui.contextRadar.header.subtitle}</p></div><div className="cx-header-actions">{activeDataset && <div className="cx-active-dataset"><Database size={16} /><span><small>{ui.contextRadar.header.activeDataset}</small><strong>{activeDataset.name}</strong><i>{ui.contextRadar.header.univariate}</i></span></div>}{decisionForecastId && <Link className="cx-secondary-action" href={`/decision-center?forecast_run_id=${decisionForecastId}`}><BrainCircuit size={15} />{ui.decisionCenter.links.fromContext}</Link>}{activeDataset?.source_type === "demo" && <button type="button" className="cx-secondary-action" disabled={loading} onClick={() => void loadDemo()}><Sparkles size={15} />{ui.contextRadar.actions.demo}</button>}{dimensions && <button type="button" className="cx-primary-action" onClick={() => setFormOpen(true)}><Plus size={16} />{ui.contextRadar.actions.newSignal}</button>}</div></header>
     {loading && <div className="cx-loading"><RefreshCw size={17} />{ui.contextRadar.loading}</div>}
     {error && <div className="ds-error-message">{error}</div>}
     {!loading && datasets.length === 0 && <section className="cx-no-dataset"><Radar size={30} /><h2>{ui.contextRadar.empty.noDataset}</h2><Link href="/data-studio">{ui.contextRadar.empty.dataStudio}</Link></section>}
