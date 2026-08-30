@@ -9,6 +9,7 @@ import "../styles/data-studio.css";
 import "../styles/demand-explorer.css";
 import "../styles/forecast-lab.css";
 import "../styles/context-radar.css";
+import "../styles/scenario-lab.css";
 
 export const metadata: Metadata = {
   title: {

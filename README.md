@@ -114,6 +114,18 @@ After preparing the demo dataset or another READY dataset:
 
 Demand Explorer provides **Ver contexto de esta serie**, preserving product, location, and category in the URL. Forecast Lab provides the same contextual access with an explicit notice that its current results remain univariate. Context data and audit records stay in the local SQLite database under the ignored `data/` directory.
 
+### Simulate conditional scenarios
+
+After completing at least one Forecast Run:
+
+1. Open [http://localhost:3000/scenario-lab](http://localhost:3000/scenario-lab).
+2. Select the persisted Forecast Run that will remain the immutable baseline.
+3. Add one or more assumptions, choose their dates, and declare a percentage, absolute amount, promotion, price change, supply restriction, custom condition, or eligible historical context evidence.
+4. Select **Ejecutar simulación** to compare baseline and conditional trajectories, original intervals, total delta, affected periods, warnings, and provenance.
+5. Reopen stored scenarios from the history area to recover exactly what was simulated.
+
+Scenario Engine applies assumptions in their visible order and never retrains or overwrites the Champion. Supply restrictions represent potentially censored sales rather than invented lost demand. Historical context evidence remains descriptive, subject to cutoff protection, and does not prove causality. Simulations do not guarantee future results.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -141,4 +153,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

@@ -34,6 +34,11 @@ export function translateFrequency(frequency: string): string {
   return frequencyLabels[frequency] ?? frequency;
 }
 
+export function translateScenarioWarning(code: string): string {
+  const warningCodes: Record<string, string> = ui.scenarioLab.warningCodes;
+  return warningCodes[code] ?? code.replaceAll("_", " ");
+}
+
 export function canonicalRoleLabel(role: string): string {
   if (role === "external") return ui.dataStudio.map.external;
   if (role === "ignore") return ui.dataStudio.map.ignore;

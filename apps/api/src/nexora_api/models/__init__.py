@@ -14,6 +14,12 @@ from nexora_api.models.dataset import (
     ForecastPoint,
     ForecastRun,
 )
+from nexora_api.models.scenario import (
+    ScenarioAssumption,
+    ScenarioAudit,
+    ScenarioPoint,
+    ScenarioRun,
+)
 
 __all__ = [
     "Base",
@@ -30,4 +36,8 @@ __all__ = [
     "ForecastModelResult",
     "ForecastPoint",
     "ForecastRun",
+    "ScenarioAssumption",
+    "ScenarioAudit",
+    "ScenarioPoint",
+    "ScenarioRun",
 ]

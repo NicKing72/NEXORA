@@ -7,6 +7,7 @@ import { DataStudio } from "@/components/data-studio/data-studio";
 import { DemandExplorer } from "@/components/demand-explorer/demand-explorer";
 import { ForecastLab } from "@/components/forecast-lab/forecast-lab";
 import { PlaceholderView } from "@/components/placeholder-view";
+import { ScenarioLab } from "@/components/scenario-lab/scenario-lab";
 import { sections } from "@/lib/navigation";
 
 type SectionPageProps = {
@@ -50,6 +51,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "context-radar") {
     return <ContextRadar />;
+  }
+
+  if (section.slug === "scenario-lab") {
+    return <ScenarioLab />;
   }
 
   return <PlaceholderView section={section} />;
