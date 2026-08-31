@@ -37,6 +37,7 @@ def _source_snapshot(evidence: dict[str, object]) -> dict[str, object]:
         "analogies": evidence["analogies"],
         "scenario": evidence["scenario_snapshot"],
         "missing_operational_inputs": evidence["missing_operational_inputs"],
+        "scor": evidence["scor_snapshot"],
         "immutable_sources": True,
         "causal_inference": False,
     }
@@ -47,8 +48,11 @@ def preflight(
     forecast_run_id: str,
     scenario_run_id: str | None,
     decision_cutoff: datetime | None,
+    scor_assessment_id: str | None = None,
 ) -> dict[str, object]:
-    evidence = collect_evidence(db, forecast_run_id, scenario_run_id, decision_cutoff)
+    evidence = collect_evidence(
+        db, forecast_run_id, scenario_run_id, decision_cutoff, scor_assessment_id
+    )
     forecast = evidence["forecast"]
     cutoff = evidence["decision_cutoff"]
     assert isinstance(cutoff, datetime)
@@ -84,6 +88,8 @@ def preflight(
         "relevant_context": evidence["signals"],
         "usable_impacts": list(evidence["impacts"].values()),
         "missing_operational_inputs": evidence["missing_operational_inputs"],
+        "scor_assessments": evidence["scor_assessments"],
+        "selected_scor": evidence["scor_snapshot"],
         "warnings": [
             "recommendations_are_not_orders",
             "official_forecast_remains_unchanged",
@@ -97,10 +103,13 @@ def generate_decision_run(
     forecast_run_id: str,
     scenario_run_id: str | None,
     decision_cutoff: datetime | None,
+    scor_assessment_id: str | None = None,
 ) -> DecisionRun:
     from nexora_api.services.decisions.rules import generate_candidates
 
-    evidence = collect_evidence(db, forecast_run_id, scenario_run_id, decision_cutoff)
+    evidence = collect_evidence(
+        db, forecast_run_id, scenario_run_id, decision_cutoff, scor_assessment_id
+    )
     forecast = evidence["forecast"]
     cutoff = evidence["decision_cutoff"]
     assert isinstance(cutoff, datetime)
@@ -152,6 +161,9 @@ def generate_decision_run(
                 "decision_cutoff": cutoff.isoformat(),
                 "forecast_run_id": forecast_run_id,
                 "scenario_run_id": scenario_run_id,
+                "scor_assessment_id": candidate["provenance"].get(
+                    "scor_assessment_id"
+                ),
             },
         )
         db.add(recommendation)
@@ -175,6 +187,18 @@ def generate_decision_run(
                 details={
                     "rank": rank,
                     "rule_version": "decision_rules_v1",
+                    "scor_rule_version": candidate["provenance"].get(
+                        "scor_rule_version",
+                        candidate["provenance"].get("rule_version")
+                        if candidate["provenance"].get("scor_origin")
+                        else None,
+                    ),
+                    "scor_assessment_id": candidate["provenance"].get(
+                        "scor_assessment_id"
+                    ),
+                    "scor_support_contribution": candidate["provenance"].get(
+                        "scor_support_contribution", 0
+                    ),
                     "automatic_execution": False,
                 },
             )
@@ -189,6 +213,10 @@ def generate_decision_run(
         "scenario_considered": scenario_run_id is not None,
         "context_signal_count": len(evidence["signals"]),
         "context_impact_count": len(evidence["impacts"]),
+        "scor_assessments_considered": 1 if evidence["scor_snapshot"] else 0,
+        "scor_recommendation_count": sum(
+            bool(item["provenance"].get("scor_origin")) for item in candidates
+        ),
     }
     db.commit()
     return require_run(db, run.id)
@@ -287,6 +315,9 @@ def serialize_recommendation(item: DecisionRecommendation) -> dict[str, object]:
         "scenario_run_id": item.scenario_run_id,
         "context_signal_ids": item.context_signal_ids,
         "context_impact_ids": item.context_impact_ids,
+        "scor_assessment_id": item.provenance_json.get("scor_assessment_id"),
+        "scor_support_contribution": item.provenance_json.get("scor_support_contribution", 0),
+        "scor_origin": item.provenance_json.get("scor_origin"),
         "decision_cutoff": item.decision_cutoff,
         "status": item.status,
         "limitations": item.limitations,
@@ -316,6 +347,11 @@ def serialize_run(run: DecisionRun, *, details: bool = True) -> dict[str, object
         "id": run.id,
         "forecast_run_id": run.forecast_run_id,
         "scenario_run_id": run.scenario_run_id,
+        "scor_assessment_id": (
+            run.source_snapshot.get("scor", {}).get("scor_assessment_id")
+            if isinstance(run.source_snapshot.get("scor"), dict)
+            else None
+        ),
         "dataset_id": run.dataset_id,
         "decision_cutoff": run.decision_cutoff,
         "status": run.status,

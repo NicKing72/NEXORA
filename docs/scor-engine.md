@@ -96,7 +96,7 @@ POST /api/v1/scor/demo/regenerate
 
 ## Limitaciones actuales
 
-No incluye EOQ, safety stock, cantidades óptimas, emisión de órdenes, rutas, vehículos, control de máquinas, modificación de inventario, ML nuevo, LLM, scraping, APIs externas ni automatización. La asociación con Forecast Run no deriva automáticamente P01 todavía: sus acumulados pueden ingresarse manualmente después de validar la asociación. Decision Engine no consume el diagnóstico en 6A.
+No incluye EOQ, safety stock, cantidades óptimas, emisión de órdenes, rutas, vehículos, control de máquinas, modificación de inventario, ML nuevo, LLM, scraping, APIs externas ni automatización. La asociación con Forecast Run no deriva automáticamente P01 todavía: sus acumulados pueden ingresarse manualmente después de validar la asociación. Desde 6B, Decision Engine puede consumir un snapshot opcional y temporalmente seguro del diagnóstico como evidencia descriptiva; nunca lo interpreta como orden o causa.
 
 ## Cierre de Milestone 6A
 

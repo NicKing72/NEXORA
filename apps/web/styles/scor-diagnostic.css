@@ -67,6 +67,8 @@
   font-weight: 700;
 }
 .sd-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.45rem; }
+.sd-decision-link { display:inline-flex; align-items:center; min-height:2.45rem; padding:.55rem .75rem; border:1px solid rgba(140,198,189,.3); border-radius:.5rem; color:var(--accent); font-size:.68rem; font-weight:750; text-decoration:none; }
+.sd-decision-link:hover { border-color:rgba(140,198,189,.6); background:rgba(140,198,189,.06); }
 .sd-actions button:hover,
 .sd-heading button:hover { border-color: rgba(140, 198, 189, 0.45); color: var(--text); }
 .sd-actions .sd-primary,

@@ -14,6 +14,7 @@ export function listDecisionForecasts(): Promise<ForecastRunSummary[]> {
 export function getDecisionPreflight(input: {
   forecastRunId: string;
   scenarioRunId?: string | null;
+  scorAssessmentId?: string | null;
   decisionCutoff?: string | null;
 }): Promise<DecisionPreflight> {
   return apiRequest("/api/v1/decisions/preflight", {
@@ -22,6 +23,7 @@ export function getDecisionPreflight(input: {
     body: JSON.stringify({
       forecast_run_id: input.forecastRunId,
       scenario_run_id: input.scenarioRunId || null,
+      scor_assessment_id: input.scorAssessmentId || null,
       decision_cutoff: input.decisionCutoff || null,
     }),
   });
@@ -30,6 +32,7 @@ export function getDecisionPreflight(input: {
 export function createDecisionRun(input: {
   forecastRunId: string;
   scenarioRunId?: string | null;
+  scorAssessmentId?: string | null;
   decisionCutoff?: string | null;
 }): Promise<DecisionRun> {
   return apiRequest("/api/v1/decisions", {
@@ -38,6 +41,7 @@ export function createDecisionRun(input: {
     body: JSON.stringify({
       forecast_run_id: input.forecastRunId,
       scenario_run_id: input.scenarioRunId || null,
+      scor_assessment_id: input.scorAssessmentId || null,
       decision_cutoff: input.decisionCutoff || null,
     }),
   });

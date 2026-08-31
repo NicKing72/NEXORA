@@ -2,6 +2,27 @@ import type { ForecastRunSummary } from "@/lib/scenario-types";
 
 export type { ForecastRunSummary };
 
+export type DecisionScorAssessment = {
+  id: string;
+  name: string;
+  company_name: string | null;
+  period_start: string;
+  period_end: string;
+  calculated_at: string;
+  available_at: string;
+  benchmark_profile_id: string | null;
+  benchmark_profile_name: string | null;
+  metrics_complete: number;
+  metrics_insufficient: number;
+  metrics_incomplete: number;
+  metrics_not_applicable: number;
+  data_coverage: number;
+  benchmark_coverage: number;
+  criticality_status: string;
+  selected_process: string | null;
+  tied_processes: string[];
+};
+
 export type DecisionPreflight = {
   forecast_run_id: string;
   dataset_id: string;
@@ -43,6 +64,18 @@ export type DecisionPreflight = {
   }>;
   relevant_context: Array<Record<string, unknown>>;
   usable_impacts: Array<Record<string, unknown>>;
+  scor_assessments: DecisionScorAssessment[];
+  selected_scor: null | {
+    scor_assessment_id: string;
+    assessment_name: string;
+    entity: string | null;
+    period_start: string;
+    period_end: string;
+    benchmark_profile_name: string | null;
+    summary: Record<string, number>;
+    criticality: Record<string, unknown>;
+    decision_cutoff: string;
+  };
   missing_operational_inputs: string[];
   warnings: string[];
 };
@@ -83,6 +116,9 @@ export type DecisionRecommendation = {
   scenario_run_id: string | null;
   context_signal_ids: string[];
   context_impact_ids: string[];
+  scor_assessment_id: string | null;
+  scor_support_contribution: number;
+  scor_origin: "originated" | "reinforced" | "evidence_request" | null;
   decision_cutoff: string;
   status: DecisionStatus;
   limitations: string[];
@@ -97,6 +133,7 @@ export type DecisionRunSummary = {
   id: string;
   forecast_run_id: string;
   scenario_run_id: string | null;
+  scor_assessment_id: string | null;
   dataset_id: string;
   decision_cutoff: string;
   status: string;
@@ -131,6 +168,7 @@ export type DecisionRun = DecisionRunSummary & {
       official_forecast_modified: false;
     };
     missing_operational_inputs: string[];
+    scor: Record<string, unknown> | null;
     immutable_sources: true;
     causal_inference: false;
   };
@@ -142,6 +180,8 @@ export type DecisionRun = DecisionRunSummary & {
     scenario_considered: boolean;
     context_signal_count: number;
     context_impact_count: number;
+    scor_assessments_considered: number;
+    scor_recommendation_count: number;
   };
   warnings: string[];
   recommendations: DecisionRecommendation[];

@@ -375,9 +375,18 @@ def missing_input_candidate(evidence: dict[str, object]) -> dict[str, object]:
 
 
 def generate_candidates(evidence: dict[str, object]) -> list[dict[str, object]]:
-    return [
+    legacy = [
         *forecast_candidates(evidence),
         *scenario_candidates(evidence),
         *context_candidates(evidence),
         missing_input_candidate(evidence),
     ]
+    scor = evidence.get("scor_snapshot")
+    if not isinstance(scor, dict):
+        return legacy
+    from nexora_api.services.decisions.scor_support import (
+        generate_scor_candidates,
+        reinforce_legacy_candidates,
+    )
+
+    return [*reinforce_legacy_candidates(legacy, scor), *generate_scor_candidates(scor)]

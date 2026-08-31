@@ -14,6 +14,10 @@ from nexora_api.models.dataset import ForecastRun
 from nexora_api.models.scenario import ScenarioRun
 from nexora_api.services.context.impact.analogies import scopes_are_compatible
 from nexora_api.services.context.relevance import SeriesContext, match_signal
+from nexora_api.services.decisions.scor_evidence import (
+    list_available_scor_assessments,
+    prepare_scor_evidence,
+)
 from nexora_api.services.forecasting.service import require_run as require_forecast
 from nexora_api.services.scenarios.service import require_scenario
 
@@ -164,6 +168,7 @@ def collect_evidence(
     forecast_run_id: str,
     scenario_run_id: str | None,
     decision_cutoff: datetime | None,
+    scor_assessment_id: str | None = None,
 ) -> dict[str, object]:
     forecast = require_forecast(db, forecast_run_id)
     if forecast.status != "completed" or not forecast.points or not forecast.champion_model:
@@ -294,6 +299,12 @@ def collect_evidence(
             "hypothetical": True,
             "official_forecast_modified": False,
         }
+    scor_assessments = list_available_scor_assessments(db, forecast, cutoff)
+    scor_snapshot = (
+        prepare_scor_evidence(db, forecast, scor_assessment_id, cutoff)
+        if scor_assessment_id
+        else None
+    )
     return {
         "forecast": forecast,
         "scenario": scenario,
@@ -306,4 +317,6 @@ def collect_evidence(
         "analogies": analogies,
         "scenario_snapshot": scenario_snapshot,
         "missing_operational_inputs": MISSING_OPERATIONAL_INPUTS,
+        "scor_assessments": scor_assessments,
+        "scor_snapshot": scor_snapshot,
     }

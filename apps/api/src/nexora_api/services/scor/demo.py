@@ -248,6 +248,7 @@ def regenerate_demo(db: Session) -> tuple[ScorAssessmentRun, ScorBenchmarkProfil
                 "demo_seed": 6001,
                 "period_rule": "six_complete_months",
                 "official_scor_benchmark": False,
+                "scope_type": "entity",
             },
             metric_inputs=demo_inputs(),
         ),

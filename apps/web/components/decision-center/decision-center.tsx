@@ -36,11 +36,21 @@ function percent(value: number | null | undefined) {
   return `${value >= 0 ? "+" : ""}${(value * 100).toFixed(1)}%`;
 }
 
+function rate(value: number | null | undefined) {
+  if (value == null) return "—";
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function dateOnly(value: string) {
+  return new Date(value).toLocaleDateString("es-PE", { timeZone: "UTC" });
+}
+
 export function DecisionCenter() {
   const copy = ui.decisionCenter;
   const [forecasts, setForecasts] = useState<ForecastRunSummary[]>([]);
   const [forecastRunId, setForecastRunId] = useState("");
   const [scenarioRunId, setScenarioRunId] = useState("");
+  const [scorAssessmentId, setScorAssessmentId] = useState("");
   const [cutoff, setCutoff] = useState("");
   const [preflight, setPreflight] = useState<DecisionPreflight | null>(null);
   const [runs, setRuns] = useState<DecisionRunSummary[]>([]);
@@ -79,7 +89,7 @@ export function DecisionCenter() {
     if (!forecastRunId || !cutoff) return;
     let active = true;
     const decisionCutoff = new Date(cutoff).toISOString();
-    void getDecisionPreflight({ forecastRunId, scenarioRunId, decisionCutoff })
+    void getDecisionPreflight({ forecastRunId, scenarioRunId, scorAssessmentId, decisionCutoff })
       .then((result) => {
         if (!active) return;
         setPreflight(result);
@@ -87,17 +97,28 @@ export function DecisionCenter() {
         if (!scenarioRunId && requestedScenario && result.scenarios.some((item) => item.id === requestedScenario)) {
           setScenarioRunId(requestedScenario);
         }
+        const requestedScor = queryRef.current?.get("scor_assessment_id");
+        if (!scorAssessmentId && requestedScor && (result.scor_assessments ?? []).some((item) => item.id === requestedScor)) {
+          setScorAssessmentId(requestedScor);
+        }
         queryRef.current = null;
       })
       .catch((cause: Error) => active && setError(cause.message));
     return () => { active = false; };
-  }, [forecastRunId, scenarioRunId, cutoff]);
+  }, [forecastRunId, scenarioRunId, scorAssessmentId, cutoff]);
 
   const activeForecast = useMemo(
     () => forecasts.find((item) => item.id === forecastRunId) ?? null,
     [forecasts, forecastRunId],
   );
   const openCount = run?.recommendations.filter((item) => ["open", "acknowledged", "under_review"].includes(item.status)).length ?? 0;
+  const selectedScor = preflight?.selected_scor ?? null;
+  const scorTies = Array.isArray(selectedScor?.criticality.tied_processes)
+    ? selectedScor.criticality.tied_processes as string[]
+    : [];
+  const scorCriticality = scorTies.length
+    ? scorTies.join(" · ")
+    : String(selectedScor?.criticality.selected_process ?? copy.setup.insufficientScor);
 
   async function analyze() {
     if (!forecastRunId || !cutoff) return;
@@ -107,6 +128,7 @@ export function DecisionCenter() {
       const result = await createDecisionRun({
         forecastRunId,
         scenarioRunId,
+        scorAssessmentId,
         decisionCutoff: new Date(cutoff).toISOString(),
       });
       setRun(result);
@@ -126,6 +148,7 @@ export function DecisionCenter() {
       const stored = await getDecisionRun(item.id);
       setForecastRunId(stored.forecast_run_id);
       setScenarioRunId(stored.scenario_run_id ?? "");
+      setScorAssessmentId(stored.scor_assessment_id ?? "");
       setCutoff(toLocalInput(new Date(stored.decision_cutoff)));
       setRun(stored);
       setSelected(stored.recommendations[0] ?? null);
@@ -155,5 +178,28 @@ export function DecisionCenter() {
   if (loading) return <div className="workspace dc-workspace"><div className="dc-loading"><RefreshCw size={18} />Preparando evidencia para decisiones…</div></div>;
   if (!forecasts.length) return <div className="workspace dc-workspace"><header className="workspace-header"><div><span className="eyebrow">{copy.header.eyebrow}</span><h1>{copy.header.title}</h1><p>{copy.header.subtitle}</p></div></header><section className="dc-empty"><BrainCircuit size={30} /><h2>{copy.empty.title}</h2><p>{copy.empty.description}</p><Link href="/forecast-lab" className="dx-primary-action">{copy.empty.action}</Link></section></div>;
 
-  return <div className="workspace dc-workspace"><header className="workspace-header dc-header"><div><span className="eyebrow">{copy.header.eyebrow}</span><h1>{copy.header.title}</h1><p>{copy.header.subtitle}</p></div><div className="dc-boundary"><ShieldCheck size={18} /><span>{copy.header.boundary}<strong>{copy.header.noExecution}</strong></span></div></header><section className="dc-panel"><div className="dc-heading"><div><span>{copy.setup.index}</span><h2>{copy.setup.title}</h2></div><small>{preflight?.selection.dataset_name ?? "—"}</small></div><div className="dc-setup-grid"><label><span>{copy.setup.forecast}</span><select value={forecastRunId} disabled={analyzing} onChange={(event) => { setForecastRunId(event.target.value); setScenarioRunId(""); setRun(null); setSelected(null); }}>{forecasts.map((item) => <option key={item.id} value={item.id}>{item.data_cutoff} · {translateFrequency(item.frequency)} · {item.champion_model}</option>)}</select></label><label><span>{copy.setup.scenario}</span><select value={scenarioRunId} disabled={analyzing || !preflight} onChange={(event) => { setScenarioRunId(event.target.value); setRun(null); setSelected(null); }}><option value="">{copy.setup.noScenario}</option>{preflight?.scenarios.map((item) => <option key={item.id} value={item.id}>{item.name} · {percent(item.relative_delta)}</option>)}</select></label><label><span>{copy.setup.cutoff}</span><input type="datetime-local" value={cutoff} disabled={analyzing} onChange={(event) => setCutoff(event.target.value)} /></label></div>{preflight && <div className="dc-source-strip"><div><span>{copy.setup.champion}</span><strong>{preflight.champion.model_name}</strong></div><div><span>{copy.setup.trajectory}</span><strong>{percent(preflight.forecast_summary.trajectory_delta)}</strong></div><div><span>{copy.setup.context}</span><strong>{preflight.relevant_context.length}</strong></div><div><span>{copy.setup.impacts}</span><strong>{preflight.usable_impacts.length}</strong></div><div><span>{copy.setup.missing}</span><strong>{preflight.missing_operational_inputs.length}</strong></div></div>}{scenarioRunId && <p className="dc-scenario-boundary">{copy.setup.scenarioBoundary}</p>}{error && <div className="ds-error-message">{error}</div>}<div className="dc-run"><button type="button" disabled={analyzing || !preflight} onClick={() => void analyze()}>{analyzing ? <RefreshCw size={16} /> : <Play size={16} />}{analyzing ? copy.setup.analyzing : copy.setup.analyze}</button><small>Forecast: {activeForecast?.id} · corte auditable {cutoff}</small></div></section>{run && <><section className="dc-kpis"><article><span>{copy.kpis.open}</span><strong>{openCount}</strong></article><article><span>{copy.kpis.high}</span><strong>{run.summary.high_priority_count}</strong></article><article><span>{copy.kpis.review}</span><strong>{run.summary.requires_review_count}</strong></article><article><span>{copy.kpis.scenarios}</span><strong>{run.summary.scenario_considered ? 1 : 0}</strong></article></section><DecisionList recommendations={run.recommendations} selectedId={selected?.id ?? null} onSelect={setSelected} /><DecisionDetail recommendation={selected} saving={saving} onStatus={(status) => void updateStatus(status)} /><DecisionComparison run={run} /></>}<section className="dc-panel"><div className="dc-heading"><div><span>{copy.history.index}</span><h2>{copy.history.title}</h2></div><History size={17} /></div>{!runs.length ? <p className="dc-muted">{copy.history.empty}</p> : <div className="dc-history">{runs.map((item) => <button type="button" key={item.id} disabled={analyzing} onClick={() => void openStored(item)}><span><strong>{item.created_at.slice(0, 10)} · {item.recommendation_count} recomendaciones</strong><small>{item.forecast_run_id}{item.scenario_run_id ? " · con escenario" : " · baseline oficial"}</small></span><b>{item.high_priority_count} alta/crítica</b></button>)}</div>}</section></div>;
+  return (
+    <div className="workspace dc-workspace">
+      <header className="workspace-header dc-header">
+        <div><span className="eyebrow">{copy.header.eyebrow}</span><h1>{copy.header.title}</h1><p>{copy.header.subtitle}</p></div>
+        <div className="dc-boundary"><ShieldCheck size={18} /><span>{copy.header.boundary}<strong>{copy.header.noExecution}</strong></span></div>
+      </header>
+      <section className="dc-panel">
+        <div className="dc-heading"><div><span>{copy.setup.index}</span><h2>{copy.setup.title}</h2></div><small>{preflight?.selection.dataset_name ?? "—"}</small></div>
+        <div className="dc-setup-grid">
+          <label><span>{copy.setup.forecast}</span><select value={forecastRunId} disabled={analyzing} onChange={(event) => { setForecastRunId(event.target.value); setScenarioRunId(""); setScorAssessmentId(""); setRun(null); setSelected(null); }}>{forecasts.map((item) => <option key={item.id} value={item.id}>{item.data_cutoff} · {translateFrequency(item.frequency)} · {item.champion_model}</option>)}</select></label>
+          <label><span>{copy.setup.scenario}</span><select value={scenarioRunId} disabled={analyzing || !preflight} onChange={(event) => { setScenarioRunId(event.target.value); setRun(null); setSelected(null); }}><option value="">{copy.setup.noScenario}</option>{preflight?.scenarios.map((item) => <option key={item.id} value={item.id}>{item.name} · {percent(item.relative_delta)}</option>)}</select></label>
+          <label><span>{copy.setup.scor}</span><select value={scorAssessmentId} disabled={analyzing || !preflight} onChange={(event) => { setScorAssessmentId(event.target.value); setRun(null); setSelected(null); }}><option value="">{copy.setup.noScor}</option>{(preflight?.scor_assessments ?? []).map((item) => <option key={item.id} value={item.id}>{item.name} · {rate(item.data_coverage)}</option>)}</select></label>
+          <label><span>{copy.setup.cutoff}</span><input type="datetime-local" value={cutoff} disabled={analyzing} onChange={(event) => setCutoff(event.target.value)} /></label>
+        </div>
+        {preflight && <div className="dc-source-strip"><div><span>{copy.setup.champion}</span><strong>{preflight.champion.model_name}</strong></div><div><span>{copy.setup.trajectory}</span><strong>{percent(preflight.forecast_summary.trajectory_delta)}</strong></div><div><span>{copy.setup.context}</span><strong>{preflight.relevant_context.length}</strong></div><div><span>{copy.setup.impacts}</span><strong>{preflight.usable_impacts.length}</strong></div><div><span>{copy.setup.scorAvailable}</span><strong>{preflight.scor_assessments?.length ?? 0}</strong></div><div><span>{copy.setup.missing}</span><strong>{preflight.missing_operational_inputs.length}</strong></div></div>}
+        {selectedScor && <div className="dc-scor-summary"><div><span>{copy.setup.scorSelected}</span><strong>{selectedScor.assessment_name}</strong><small>{dateOnly(selectedScor.period_start)} — {dateOnly(selectedScor.period_end)} · {selectedScor.benchmark_profile_name ?? copy.setup.noBenchmark}</small></div><div><span>{copy.setup.coverage}</span><strong>{rate(selectedScor.summary.data_coverage)}</strong><small>{selectedScor.summary.metrics_complete ?? 0} {copy.setup.complete} · {selectedScor.summary.metrics_insufficient ?? 0} {copy.setup.insufficient}</small></div><div><span>{scorTies.length ? copy.setup.criticalTie : copy.setup.criticalProcess}</span><strong>{scorCriticality}</strong><small>{copy.setup.nonCausal}</small></div></div>}
+        {scenarioRunId && <p className="dc-scenario-boundary">{copy.setup.scenarioBoundary}</p>}
+        {error && <div className="ds-error-message">{error}</div>}
+        <div className="dc-run"><button type="button" disabled={analyzing || !preflight} onClick={() => void analyze()}>{analyzing ? <RefreshCw size={16} /> : <Play size={16} />}{analyzing ? copy.setup.analyzing : copy.setup.analyze}</button><small>Forecast: {activeForecast?.id} · corte auditable {cutoff}</small></div>
+      </section>
+      {run && <><section className="dc-kpis"><article><span>{copy.kpis.open}</span><strong>{openCount}</strong></article><article><span>{copy.kpis.high}</span><strong>{run.summary.high_priority_count}</strong></article><article><span>{copy.kpis.review}</span><strong>{run.summary.requires_review_count}</strong></article><article><span>{copy.kpis.scenarios}</span><strong>{run.summary.scenario_considered ? 1 : 0}</strong></article><article><span>{copy.kpis.scor}</span><strong>{run.summary.scor_assessments_considered}</strong></article></section><DecisionList recommendations={run.recommendations} selectedId={selected?.id ?? null} onSelect={setSelected} /><DecisionDetail recommendation={selected} saving={saving} onStatus={(status) => void updateStatus(status)} /><DecisionComparison run={run} /></>}
+      <section className="dc-panel"><div className="dc-heading"><div><span>{copy.history.index}</span><h2>{copy.history.title}</h2></div><History size={17} /></div>{!runs.length ? <p className="dc-muted">{copy.history.empty}</p> : <div className="dc-history">{runs.map((item) => <button type="button" key={item.id} disabled={analyzing} onClick={() => void openStored(item)}><span><strong>{item.created_at.slice(0, 10)} · {item.recommendation_count} recomendaciones</strong><small>{item.forecast_run_id}{item.scenario_run_id ? " · con escenario" : " · baseline oficial"}{item.scor_assessment_id ? " · con SCOR" : ""}</small></span><b>{item.high_priority_count} alta/crítica</b></button>)}</div>}</section>
+    </div>
+  );
 }

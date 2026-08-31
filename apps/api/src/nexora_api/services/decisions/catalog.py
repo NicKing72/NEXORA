@@ -2,6 +2,13 @@
 
 ACTION_ORDER = (
     "review_stockout_risk",
+    "review_scor_critical",
+    "review_scor_deliver",
+    "review_scor_source",
+    "review_scor_make",
+    "review_scor_plan",
+    "review_scor_return",
+    "complete_scor_evidence",
     "manual_review_required",
     "prepare_supply",
     "prepare_capacity",
@@ -28,6 +35,13 @@ ACTION_LABELS = {
     "review_promotion_plan": "Revisar el plan promocional",
     "review_price_change": "Revisar el cambio de precio",
     "manual_review_required": "Revisión manual requerida",
+    "review_scor_critical": "Revisar proceso crítico candidato",
+    "review_scor_plan": "Revisar desempeño de planificación",
+    "review_scor_source": "Revisar desempeño de abastecimiento",
+    "review_scor_make": "Revisar producción y almacenaje",
+    "review_scor_deliver": "Revisar desempeño de distribución",
+    "review_scor_return": "Revisar desempeño de retornos",
+    "complete_scor_evidence": "Completar evidencia operativa SCOR",
 }
 
 PRIORITY_WEIGHT = {"critical": 4, "high": 3, "medium": 2, "low": 1}

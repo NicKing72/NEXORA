@@ -1,4 +1,5 @@
 import { AlertTriangle, FileSearch, Fingerprint, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 import type { DecisionRecommendation, DecisionStatus } from "@/lib/decision-types";
 import { ui } from "@/lib/i18n";
@@ -27,6 +28,17 @@ export function DecisionDetail({ recommendation, saving, onStatus }: Readonly<Pr
       </section>
     );
   }
+  const scorEvidence = recommendation.evidence.find((item) => item.evidence_type.startsWith("scor_"));
+  const scorSnapshot = scorEvidence?.snapshot ?? null;
+  const scorAssessment = scorSnapshot && typeof scorSnapshot.assessment === "object" && scorSnapshot.assessment !== null
+    ? scorSnapshot.assessment as Record<string, unknown>
+    : null;
+  const scorMetric = scorSnapshot && typeof scorSnapshot.metric === "object" && scorSnapshot.metric !== null
+    ? scorSnapshot.metric as Record<string, unknown>
+    : null;
+  const scorTarget = scorMetric && typeof scorMetric.target === "object" && scorMetric.target !== null
+    ? scorMetric.target as Record<string, unknown>
+    : null;
   return (
     <section className="dc-panel dc-detail">
       <div className="dc-heading">
@@ -49,6 +61,16 @@ export function DecisionDetail({ recommendation, saving, onStatus }: Readonly<Pr
           </details>
         ))}
       </div>
+      {scorEvidence && scorAssessment && scorMetric && <div className="dc-scor-evidence">
+        <div className="dc-subheading"><ShieldCheck size={16} /><strong>{copy.scorEvidence}</strong><span>{recommendation.scor_origin ? ui.decisionCenter.scorOrigins[recommendation.scor_origin] : "SCOR"}</span></div>
+        <div className="dc-scor-evidence-grid">
+          <div><small>{copy.scorAssessment}</small><strong>{String(scorAssessment.assessment_name ?? "—")}</strong><span>{String(scorAssessment.period_start ?? "—").slice(0, 10)} — {String(scorAssessment.period_end ?? "—").slice(0, 10)}</span></div>
+          <div><small>{copy.scorMetric}</small><strong>{String(scorMetric.metric_id ?? "—")} · {String(scorMetric.metric_name ?? "—")}</strong><span>{String(scorMetric.process ?? "—")} · {String(scorMetric.evidence_status ?? "—")}</span></div>
+          <div><small>{copy.scorResult}</small><strong>{scorMetric.raw_result == null ? "—" : `${Number(scorMetric.raw_result).toFixed(2)} ${String(scorMetric.unit ?? "")}`}</strong><span>{copy.scorTarget}: {scorTarget?.target == null ? "—" : String(scorTarget.target)} · Gap: {scorMetric.gap_score == null ? "—" : `${Number(scorMetric.gap_score).toFixed(1)} / 100`}</span></div>
+          <div><small>{copy.scorCoverage}</small><strong>{`${(Number(scorMetric.process_coverage ?? 0) * 100).toFixed(1)}%`}</strong><span>{copy.scorVersion}: {String(scorMetric.calculation_version ?? "—")}</span></div>
+        </div>
+        <div className="dc-scor-evidence-footer"><span>{copy.scorSnapshot}</span>{recommendation.scor_assessment_id && <Link href={`/scor-diagnostic?assessment_id=${recommendation.scor_assessment_id}`}>{copy.openScor}</Link>}</div>
+      </div>}
       <div className="dc-provenance">
         <Fingerprint size={17} />
         <span><strong>{copy.provenance}</strong><p>Forecast: {recommendation.forecast_run_id}{recommendation.scenario_run_id ? ` · Escenario: ${recommendation.scenario_run_id}` : ""}</p><small>{copy.noCausality}</small></span>

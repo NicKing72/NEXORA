@@ -36,7 +36,13 @@ router = APIRouter(prefix="/api/v1/decisions", tags=["decision-engine"])
 def decision_preflight(
     payload: DecisionRequest, db: Session = Depends(get_database_session)
 ) -> dict[str, object]:
-    return preflight(db, payload.forecast_run_id, payload.scenario_run_id, payload.decision_cutoff)
+    return preflight(
+        db,
+        payload.forecast_run_id,
+        payload.scenario_run_id,
+        payload.decision_cutoff,
+        payload.scor_assessment_id,
+    )
 
 
 @router.post("", response_model=DecisionRunResponse, status_code=status.HTTP_201_CREATED)
@@ -44,7 +50,11 @@ def create_decision_run(
     payload: DecisionRequest, db: Session = Depends(get_database_session)
 ) -> dict[str, object]:
     run = generate_decision_run(
-        db, payload.forecast_run_id, payload.scenario_run_id, payload.decision_cutoff
+        db,
+        payload.forecast_run_id,
+        payload.scenario_run_id,
+        payload.decision_cutoff,
+        payload.scor_assessment_id,
     )
     return serialize_run(run)
 
@@ -72,6 +82,21 @@ def retrieve_evidence(
     return [
         serialize_evidence(item)
         for item in sorted(recommendation.evidence, key=lambda item: item.id)
+    ]
+
+
+@router.get(
+    "/recommendations/{recommendation_id}/scor-evidence",
+    response_model=list[DecisionEvidenceResponse],
+)
+def retrieve_scor_evidence(
+    recommendation_id: UUID, db: Session = Depends(get_database_session)
+) -> list[dict[str, object]]:
+    recommendation = require_recommendation(db, str(recommendation_id))
+    return [
+        serialize_evidence(item)
+        for item in sorted(recommendation.evidence, key=lambda item: item.id)
+        if item.evidence_type.startswith("scor_")
     ]
 
 

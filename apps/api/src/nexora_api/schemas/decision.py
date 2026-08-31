@@ -15,9 +15,10 @@ DecisionStatus = Literal["open", "acknowledged", "under_review", "dismissed", "r
 class DecisionRequest(BaseModel):
     forecast_run_id: str
     scenario_run_id: str | None = None
+    scor_assessment_id: str | None = None
     decision_cutoff: datetime | None = None
 
-    @validator("forecast_run_id", "scenario_run_id")
+    @validator("forecast_run_id", "scenario_run_id", "scor_assessment_id")
     def validate_uuid(cls, value: str | None) -> str | None:
         return str(UUID(value)) if value is not None else None
 
@@ -64,6 +65,9 @@ class DecisionRecommendationResponse(BaseModel):
     scenario_run_id: str | None = None
     context_signal_ids: list[str]
     context_impact_ids: list[str]
+    scor_assessment_id: str | None = None
+    scor_support_contribution: float = 0
+    scor_origin: str | None = None
     decision_cutoff: datetime
     status: DecisionStatus
     limitations: list[str]
@@ -78,6 +82,7 @@ class DecisionRunSummary(BaseModel):
     id: str
     forecast_run_id: str
     scenario_run_id: str | None = None
+    scor_assessment_id: str | None = None
     dataset_id: str
     decision_cutoff: datetime
     status: str
@@ -103,6 +108,8 @@ class DecisionPreflightResponse(BaseModel):
     scenarios: list[dict[str, object]]
     relevant_context: list[dict[str, object]]
     usable_impacts: list[dict[str, object]]
+    scor_assessments: list[dict[str, object]]
+    selected_scor: dict[str, object] | None = None
     missing_operational_inputs: list[str]
     warnings: list[str]
 
