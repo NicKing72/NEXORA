@@ -9,6 +9,10 @@ ACTION_ORDER = (
     "review_scor_plan",
     "review_scor_return",
     "complete_scor_evidence",
+    "review_portfolio_coverage",
+    "review_portfolio_priority",
+    "review_portfolio_volatility",
+    "complete_portfolio_data",
     "manual_review_required",
     "prepare_supply",
     "prepare_capacity",
@@ -42,6 +46,10 @@ ACTION_LABELS = {
     "review_scor_deliver": "Revisar desempeño de distribución",
     "review_scor_return": "Revisar desempeño de retornos",
     "complete_scor_evidence": "Completar evidencia operativa SCOR",
+    "review_portfolio_coverage": "Revisar cobertura de inventario",
+    "review_portfolio_priority": "Revisar serie priorizada del portafolio",
+    "review_portfolio_volatility": "Revisar exposición por variabilidad",
+    "complete_portfolio_data": "Completar datos operativos de inventario",
 }
 
 PRIORITY_WEIGHT = {"critical": 4, "high": 3, "medium": 2, "low": 1}

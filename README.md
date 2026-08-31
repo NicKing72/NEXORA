@@ -11,7 +11,7 @@ NEXORA is a professional demand-intelligence workspace. It combines auditable da
 - **Forecast Lab:** explicit training preparation, seven statistical candidates, temporal backtesting, auditable Champion ranking, empirical intervals, and persisted runs.
 - **Context Radar:** manual and reproducible demo signals, deterministic scope matching, provenance, anti-leakage cutoffs, observed-impact evidence, and strict-scope historical analogies.
 - **Scenario Lab:** conditional, auditable simulations over an immutable official Forecast Run.
-- **Decision Center:** ranked recommendations with evidence, limitations, lifecycle, provenance, optional baseline-versus-scenario comparison, and optional frozen SCOR evidence.
+- **Decision Center:** ranked recommendations with evidence, limitations, lifecycle, provenance, optional baseline-versus-scenario comparison, and optional frozen SCOR/Portfolio evidence.
 - **SCOR Diagnostic:** auditable six-month KPI calculations for PLAN, SOURCE, MAKE, DELIVER, and RETURN, with optional company targets and cautious critical-link prioritization.
 - **Operational Portfolio:** immutable Forecast Run snapshots, optional logistics inputs, explainable coverage, descriptive exposure, and deterministic priority ranking.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
@@ -135,11 +135,11 @@ Scenario Engine applies assumptions in their visible order and never retrains or
 After completing a Forecast Run, with an optional stored scenario:
 
 1. Open [http://localhost:3000/decision-center](http://localhost:3000/decision-center).
-2. Select the official Forecast Run, decision cutoff, optional hypothetical scenario, and—when available—an optional compatible SCOR diagnostic.
+2. Select the official Forecast Run, decision cutoff, optional hypothetical scenario and, when available, compatible SCOR and operational Portfolio evidence.
 3. Review preflight inputs and select **Generar recomendaciones**.
-4. Inspect priority, support, evidence, limitations, and provenance for each recommendation. SCOR badges distinguish recommendations that originate from a gap, are reinforced by it, or request missing evidence.
+4. Inspect priority, support, evidence, limitations, and provenance for each recommendation. Badges distinguish recommendations originated or reinforced by SCOR/Portfolio and requests for missing evidence.
 5. When a scenario is present, compare it with the immutable official baseline; it never becomes the official forecast.
-6. Open **Evidencia SCOR utilizada** to audit the frozen KPI result, target, gap, coverage, period, source, and calculation version.
+6. Open **Evidencia SCOR utilizada** or **Evidencia de Portafolio utilizada** to audit exactly the snapshot frozen for that analysis.
 7. Change a recommendation lifecycle state when reviewed, then reload to confirm persistence.
 
 Decision Engine does not execute orders or calculate optimal quantities. Inventory position, lead time, MOQ, costs, and service targets are explicitly listed as missing whenever they are unavailable. Contextual associations remain descriptive rather than causal.
@@ -163,6 +163,7 @@ NEXORA preserves missing inputs and zero denominators as explicit evidence state
 4. Select **Analizar portafolio** and inspect the summary, stable ranking, coverage, score components, missing inputs, and frozen provenance.
 5. Alternatively select **Usar demo de portafolio** to inspect sufficient, partial, insufficient, and controlled-tie cases without creating or changing Forecast Runs.
 6. Reopen a Portfolio Run from history after reloading the page.
+7. For an official run, choose **Analizar en Centro de Decisiones** to carry the exact Forecast and Portfolio Run IDs without duplicating data.
 
 Portfolio Engine prioritizes attention; it does not calculate optimal quantities, execute orders, or replace an official forecast. Coverage is only shown when current inventory and a positive forecast average exist.
 
@@ -193,4 +194,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

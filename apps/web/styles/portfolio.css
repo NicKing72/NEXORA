@@ -82,3 +82,5 @@
 @media (max-width: 1080px) { .pf-source-strip, .pf-kpis { grid-template-columns: repeat(3, 1fr); } .pf-input-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pf-input-row > div { grid-column: 1 / -1; } }
 @media (max-width: 760px) { .pf-header, .pf-scope-grid, .pf-detail-grid { display: grid; grid-template-columns: 1fr; } .pf-boundary { max-width: none; } .pf-panel { padding: 17px; } .pf-source-strip, .pf-kpis, .pf-metric-grid, .pf-audit dl { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pf-actions { flex-direction: column-reverse; } .pf-actions button { width: 100%; } .pf-audit { grid-column: auto; } }
 @media (max-width: 520px) { .pf-source-strip, .pf-kpis, .pf-metric-grid, .pf-audit dl, .pf-input-row { grid-template-columns: 1fr; } .pf-history button { align-items: flex-start; flex-direction: column; } }
+.pf-decision-link { display:inline-flex; margin-top:.75rem; padding:.55rem .72rem; border:1px solid rgba(140,198,189,.34); border-radius:.5rem; color:var(--accent); font-size:.7rem; font-weight:700; text-decoration:none; }
+.pf-decision-link:hover { background:rgba(140,198,189,.06); }

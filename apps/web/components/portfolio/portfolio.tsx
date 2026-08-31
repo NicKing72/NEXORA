@@ -1,7 +1,7 @@
 "use client";
 
 import { Boxes, History, Play, RefreshCw, ShieldCheck } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { PortfolioDetail } from "@/components/portfolio/portfolio-detail";
 import { PortfolioMatrix } from "@/components/portfolio/portfolio-matrix";
@@ -47,6 +47,7 @@ export function Portfolio() {
   const [error, setError] = useState<string | null>(null);
   const [scopeWarning, setScopeWarning] = useState<string | null>(null);
   const [historyWarning, setHistoryWarning] = useState<string | null>(null);
+  const requestedRunRef = useRef<string | null>(null);
 
   const groups = useMemo(() => {
     const grouped = new Map<string, ForecastRunSummary[]>();
@@ -62,6 +63,7 @@ export function Portfolio() {
 
   useEffect(() => {
     let active = true;
+    requestedRunRef.current = new URLSearchParams(window.location.search).get("portfolio_run_id");
     const forecastTask = listPortfolioForecasts().then((forecastItems) => {
       if (!active) return;
       setForecasts(forecastItems);
@@ -71,10 +73,18 @@ export function Portfolio() {
     }).catch((cause: Error) => {
       if (active) setScopeWarning(cause.message || copy.notices.forecastUnavailable);
     });
-    const historyTask = listPortfolioRuns().then((runItems) => {
+    const historyTask = listPortfolioRuns().then(async (runItems) => {
       if (!active) return;
       setRuns(runItems);
       setHistoryWarning(null);
+      const requestedRun = requestedRunRef.current;
+      if (requestedRun && runItems.some((item) => item.id === requestedRun)) {
+        const stored = await getPortfolioRun(requestedRun);
+        if (!active) return;
+        setRun(stored);
+        setSelected(stored.items[0] ?? null);
+        requestedRunRef.current = null;
+      }
     }).catch((cause: Error) => {
       if (active) setHistoryWarning(cause.message || copy.notices.historyUnavailable);
     });

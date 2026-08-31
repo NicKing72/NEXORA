@@ -14,6 +14,10 @@ from nexora_api.models.dataset import ForecastRun
 from nexora_api.models.scenario import ScenarioRun
 from nexora_api.services.context.impact.analogies import scopes_are_compatible
 from nexora_api.services.context.relevance import SeriesContext, match_signal
+from nexora_api.services.decisions.portfolio_evidence import (
+    list_available_portfolios,
+    prepare_portfolio_evidence,
+)
 from nexora_api.services.decisions.scor_evidence import (
     list_available_scor_assessments,
     prepare_scor_evidence,
@@ -169,6 +173,7 @@ def collect_evidence(
     scenario_run_id: str | None,
     decision_cutoff: datetime | None,
     scor_assessment_id: str | None = None,
+    portfolio_run_id: str | None = None,
 ) -> dict[str, object]:
     forecast = require_forecast(db, forecast_run_id)
     if forecast.status != "completed" or not forecast.points or not forecast.champion_model:
@@ -305,6 +310,12 @@ def collect_evidence(
         if scor_assessment_id
         else None
     )
+    portfolios = list_available_portfolios(db, forecast, cutoff)
+    portfolio_snapshot = (
+        prepare_portfolio_evidence(db, forecast, portfolio_run_id, cutoff)
+        if portfolio_run_id
+        else None
+    )
     return {
         "forecast": forecast,
         "scenario": scenario,
@@ -319,4 +330,6 @@ def collect_evidence(
         "missing_operational_inputs": MISSING_OPERATIONAL_INPUTS,
         "scor_assessments": scor_assessments,
         "scor_snapshot": scor_snapshot,
+        "portfolios": portfolios,
+        "portfolio_snapshot": portfolio_snapshot,
     }

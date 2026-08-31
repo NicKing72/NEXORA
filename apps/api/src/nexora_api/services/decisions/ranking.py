@@ -12,6 +12,7 @@ def rank_candidates(candidates: list[dict[str, object]]) -> list[dict[str, objec
         key=lambda item: (
             -PRIORITY_WEIGHT[str(item["priority"])],
             -float(item["support_score"]),
+            int(item.get("provenance", {}).get("portfolio_rank", 999999)),
             action_index.get(str(item["action_type"]), len(action_index)),
             str(item["stable_key"]),
         ),

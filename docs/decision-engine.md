@@ -2,7 +2,7 @@
 
 ## Alcance y arquitectura
 
-Decision Engine es una capa de apoyo, no de ejecución. Consume snapshots inmutables de un `ForecastRun` completado, su Champion, puntos e intervalos; opcionalmente incorpora un `ScenarioRun` y un diagnóstico SCOR compatible; y consulta señales e impactos contextuales disponibles al corte. La lógica vive en `services/decisions/`: `evidence.py` prepara evidencia temporalmente segura, `scor_evidence.py` aísla el contrato SCOR, `scor_support.py` aplica scoring versionado, `rules.py` genera candidatos, `ranking.py` los ordena, `catalog.py` define acciones y `service.py` orquesta persistencia y lifecycle. Las rutas permanecen delgadas.
+Decision Engine es una capa de apoyo, no de ejecución. Consume snapshots inmutables de un `ForecastRun` completado, su Champion, puntos e intervalos; opcionalmente incorpora un `ScenarioRun`, un diagnóstico SCOR y un Portfolio Run compatibles; y consulta señales e impactos contextuales disponibles al corte. La lógica vive en `services/decisions/`: `evidence.py` prepara evidencia temporalmente segura; los pares `scor_evidence.py`/`scor_support.py` y `portfolio_evidence.py`/`portfolio_support.py` aíslan sus contratos; `rules.py` genera candidatos, `ranking.py` los ordena, `catalog.py` define acciones y `service.py` orquesta persistencia y lifecycle. Las rutas permanecen delgadas.
 
 El flujo conserva las categorías semánticas: hechos observados, pronóstico oficial, evidencia contextual, escenario hipotético y recomendación. Ninguna ejecución escribe sobre Forecast Core, Context Engine o Scenario Engine.
 
@@ -18,12 +18,13 @@ Las reglas `decision_rules_v1` son determinísticas:
 - Una señal sin impacto o analogía evaluable solo produce monitoreo.
 - Siempre se declara la falta de inventario actual, lead time, MOQ, costos y nivel de servicio; por eso nunca se calcula una cantidad óptima.
 - SCOR es opcional. KPI completos con brecha ≥15/100 y cobertura de proceso ≥50% pueden añadir revisiones o reforzar reglas compatibles. KPI incompletos, insuficientes o no aplicables nunca se usan como resultados válidos. La fórmula completa está en `docs/scor-decision-integration.md`.
+- Portafolio es opcional. Solo un run oficial y compatible, disponible al corte, puede originar o reforzar revisiones. Inputs faltantes permanecen ausentes. La fórmula está en `docs/portfolio-decision-integration.md`.
 
 El soporte queda entre 0 y 1. Su nivel es `insufficient` (<0.35), `low` (0.35–0.59), `moderate` (0.60–0.79) o `high` (≥0.80). El ranking ordena prioridad (`critical`, `high`, `medium`, `low`), soporte descendente, orden estable del catálogo y clave estable. Así los empates son reproducibles.
 
 ## Seguridad temporal y procedencia
 
-`decision_cutoff` limita todas las fuentes. Un Forecast Run o Scenario Run creado/ejecutado después del corte se rechaza. Solo se incluyen señales con `available_at <= decision_cutoff`. Un impacto exige `estimated_at <= decision_cutoff` y un `data_cutoff` que no exceda el corte de datos del forecast. Las analogías se reconstruyen con las mismas reglas de alcance y disponibilidad. SCOR exige diagnóstico calculado, periodo no posterior al corte y `max(created_at, calculated_at) <= decision_cutoff`; sus inputs ya fueron bloqueados si no estaban disponibles al cutoff del diagnóstico.
+`decision_cutoff` limita todas las fuentes. Un Forecast Run o Scenario Run creado/ejecutado después del corte se rechaza. Solo se incluyen señales con `available_at <= decision_cutoff`. Un impacto exige `estimated_at <= decision_cutoff` y un `data_cutoff` que no exceda el corte de datos del forecast. Las analogías se reconstruyen con las mismas reglas de alcance y disponibilidad. SCOR exige diagnóstico calculado, periodo no posterior al corte y `max(created_at, calculated_at) <= decision_cutoff`. Portafolio exige `created_at`, `available_at` y su propio cutoff no posteriores al corte de decisión.
 
 Cada recomendación persiste forecast, escenario opcional, señales, impactos, cutoff, regla, soporte, limitaciones y snapshots de evidencia. Su lifecycle es `open`, `acknowledged`, `under_review`, `dismissed` o `resolved`; cada transición genera un `DecisionAudit`. Descartar no elimina registros.
 
@@ -40,6 +41,7 @@ SQLite conserva `DecisionRun`, `DecisionRecommendation`, `DecisionEvidence` y `D
 - `GET /api/v1/decisions/recommendations/{id}`
 - `GET /api/v1/decisions/recommendations/{id}/evidence`
 - `GET /api/v1/decisions/recommendations/{id}/scor-evidence`
+- `GET /api/v1/decisions/recommendations/{id}/portfolio-evidence`
 - `PATCH /api/v1/decisions/recommendations/{id}/status`
 
 ## Limitaciones

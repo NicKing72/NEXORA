@@ -15,6 +15,7 @@ export function getDecisionPreflight(input: {
   forecastRunId: string;
   scenarioRunId?: string | null;
   scorAssessmentId?: string | null;
+  portfolioRunId?: string | null;
   decisionCutoff?: string | null;
 }): Promise<DecisionPreflight> {
   return apiRequest("/api/v1/decisions/preflight", {
@@ -24,6 +25,7 @@ export function getDecisionPreflight(input: {
       forecast_run_id: input.forecastRunId,
       scenario_run_id: input.scenarioRunId || null,
       scor_assessment_id: input.scorAssessmentId || null,
+      portfolio_run_id: input.portfolioRunId || null,
       decision_cutoff: input.decisionCutoff || null,
     }),
   });
@@ -33,6 +35,7 @@ export function createDecisionRun(input: {
   forecastRunId: string;
   scenarioRunId?: string | null;
   scorAssessmentId?: string | null;
+  portfolioRunId?: string | null;
   decisionCutoff?: string | null;
 }): Promise<DecisionRun> {
   return apiRequest("/api/v1/decisions", {
@@ -42,6 +45,7 @@ export function createDecisionRun(input: {
       forecast_run_id: input.forecastRunId,
       scenario_run_id: input.scenarioRunId || null,
       scor_assessment_id: input.scorAssessmentId || null,
+      portfolio_run_id: input.portfolioRunId || null,
       decision_cutoff: input.decisionCutoff || null,
     }),
   });

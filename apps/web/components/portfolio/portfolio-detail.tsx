@@ -1,4 +1,5 @@
 import { Database, ShieldAlert } from "lucide-react";
+import Link from "next/link";
 
 import type { PortfolioItem, PortfolioRun } from "@/lib/portfolio-types";
 import { translateFrequency, ui } from "@/lib/i18n";
@@ -33,6 +34,7 @@ export function PortfolioDetail({ item, run }: { item: PortfolioItem | null; run
       <article className="pf-panel pf-audit">
         <div className="pf-heading"><div><span>{copy.audit.index}</span><h2>{copy.audit.title}</h2></div><Database size={18} /></div>
         <dl><div><dt>Portfolio Run ID</dt><dd>{run.id}</dd></div><div><dt>Forecast Run ID</dt><dd>{item.forecast_run_id ?? copy.demo.noForecastRun}</dd></div><div><dt>{copy.audit.version}</dt><dd>{run.calculation_version}</dd></div><div><dt>Cutoff</dt><dd>{new Date(run.cutoff).toLocaleString("es-PE")}</dd></div><div><dt>{copy.audit.created}</dt><dd>{new Date(run.created_at).toLocaleString("es-PE")}</dd></div><div><dt>{copy.audit.source}</dt><dd>{run.source_mode === "demo" ? copy.demo.badge : copy.audit.official}</dd></div></dl>
+        {run.source_mode === "official" && item.forecast_run_id && <Link className="pf-decision-link" href={`/decision-center?forecast_run_id=${item.forecast_run_id}&portfolio_run_id=${run.id}`}>{copy.audit.openDecisionCenter}</Link>}
       </article>
     </section>
   );

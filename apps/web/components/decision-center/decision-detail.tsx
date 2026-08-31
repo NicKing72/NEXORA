@@ -1,4 +1,4 @@
-import { AlertTriangle, FileSearch, Fingerprint, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Boxes, FileSearch, Fingerprint, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 import type { DecisionRecommendation, DecisionStatus } from "@/lib/decision-types";
@@ -39,6 +39,14 @@ export function DecisionDetail({ recommendation, saving, onStatus }: Readonly<Pr
   const scorTarget = scorMetric && typeof scorMetric.target === "object" && scorMetric.target !== null
     ? scorMetric.target as Record<string, unknown>
     : null;
+  const portfolioEvidence = recommendation.evidence.find((item) => item.evidence_type.startsWith("portfolio_"));
+  const portfolioSnapshot = portfolioEvidence?.snapshot ?? null;
+  const portfolioRun = portfolioSnapshot && typeof portfolioSnapshot.portfolio === "object" && portfolioSnapshot.portfolio !== null
+    ? portfolioSnapshot.portfolio as Record<string, unknown>
+    : null;
+  const portfolioItem = portfolioSnapshot && typeof portfolioSnapshot.item === "object" && portfolioSnapshot.item !== null
+    ? portfolioSnapshot.item as Record<string, unknown>
+    : null;
   return (
     <section className="dc-panel dc-detail">
       <div className="dc-heading">
@@ -71,9 +79,19 @@ export function DecisionDetail({ recommendation, saving, onStatus }: Readonly<Pr
         </div>
         <div className="dc-scor-evidence-footer"><span>{copy.scorSnapshot}</span>{recommendation.scor_assessment_id && <Link href={`/scor-diagnostic?assessment_id=${recommendation.scor_assessment_id}`}>{copy.openScor}</Link>}</div>
       </div>}
+      {portfolioEvidence && portfolioRun && portfolioItem && <div className="dc-portfolio-evidence">
+        <div className="dc-subheading"><Boxes size={16} /><strong>{copy.portfolioEvidence}</strong><span>{recommendation.portfolio_origin ? ui.decisionCenter.portfolioOrigins[recommendation.portfolio_origin] : "Portafolio"}</span></div>
+        <div className="dc-portfolio-evidence-grid">
+          <div><small>{copy.portfolioRun}</small><strong>{String(portfolioRun.portfolio_run_id ?? "—")}</strong><span>{copy.portfolioCutoff}: {String(portfolioRun.cutoff ?? "—").slice(0, 16)}</span></div>
+          <div><small>{copy.portfolioSeries}</small><strong>#{String(portfolioItem.rank ?? "—")} · {String(portfolioItem.product ?? "Serie agregada")}</strong><span>{String(portfolioItem.location ?? "Todas las ubicaciones")}</span></div>
+          <div><small>{copy.portfolioRisk}</small><strong>{ui.portfolio.risks[String(portfolioItem.risk_level) as keyof typeof ui.portfolio.risks] ?? String(portfolioItem.risk_level ?? "—")}</strong><span>{copy.portfolioScore}: {Number(portfolioItem.priority_score ?? 0).toFixed(1)} / 100</span></div>
+          <div><small>{copy.portfolioCoverage}</small><strong>{portfolioItem.inventory_coverage == null ? copy.notCalculable : Number(portfolioItem.inventory_coverage).toFixed(2)}</strong><span>{copy.portfolioCompleteness}: {String(portfolioItem.operational_data_completeness ?? "—")}</span></div>
+        </div>
+        <div className="dc-scor-evidence-footer"><span>{copy.portfolioSnapshot}</span>{recommendation.portfolio_run_id && <Link href={`/portfolio?portfolio_run_id=${recommendation.portfolio_run_id}`}>{copy.openPortfolio}</Link>}</div>
+      </div>}
       <div className="dc-provenance">
         <Fingerprint size={17} />
-        <span><strong>{copy.provenance}</strong><p>Forecast: {recommendation.forecast_run_id}{recommendation.scenario_run_id ? ` · Escenario: ${recommendation.scenario_run_id}` : ""}</p><small>{copy.noCausality}</small></span>
+        <span><strong>{copy.provenance}</strong><p>Forecast: {recommendation.forecast_run_id}{recommendation.scenario_run_id ? ` · Escenario: ${recommendation.scenario_run_id}` : ""}{recommendation.portfolio_run_id ? ` · Portafolio: ${recommendation.portfolio_run_id}` : ""}</p><small>{copy.noCausality}</small></span>
       </div>
       <div className="dc-boundaries"><ShieldCheck size={16} />{copy.noOrder}{recommendation.scenario_run_id && <><AlertTriangle size={16} />{ui.decisionCenter.setup.scenarioBoundary}</>}</div>
       <label className="dc-lifecycle">

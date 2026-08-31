@@ -16,9 +16,15 @@ class DecisionRequest(BaseModel):
     forecast_run_id: str
     scenario_run_id: str | None = None
     scor_assessment_id: str | None = None
+    portfolio_run_id: str | None = None
     decision_cutoff: datetime | None = None
 
-    @validator("forecast_run_id", "scenario_run_id", "scor_assessment_id")
+    @validator(
+        "forecast_run_id",
+        "scenario_run_id",
+        "scor_assessment_id",
+        "portfolio_run_id",
+    )
     def validate_uuid(cls, value: str | None) -> str | None:
         return str(UUID(value)) if value is not None else None
 
@@ -68,6 +74,9 @@ class DecisionRecommendationResponse(BaseModel):
     scor_assessment_id: str | None = None
     scor_support_contribution: float = 0
     scor_origin: str | None = None
+    portfolio_run_id: str | None = None
+    portfolio_support_contribution: float = 0
+    portfolio_origin: str | None = None
     decision_cutoff: datetime
     status: DecisionStatus
     limitations: list[str]
@@ -83,6 +92,7 @@ class DecisionRunSummary(BaseModel):
     forecast_run_id: str
     scenario_run_id: str | None = None
     scor_assessment_id: str | None = None
+    portfolio_run_id: str | None = None
     dataset_id: str
     decision_cutoff: datetime
     status: str
@@ -110,6 +120,8 @@ class DecisionPreflightResponse(BaseModel):
     usable_impacts: list[dict[str, object]]
     scor_assessments: list[dict[str, object]]
     selected_scor: dict[str, object] | None = None
+    portfolios: list[dict[str, object]]
+    selected_portfolio: dict[str, object] | None = None
     missing_operational_inputs: list[str]
     warnings: list[str]
 

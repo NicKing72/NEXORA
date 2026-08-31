@@ -42,6 +42,7 @@ def decision_preflight(
         payload.scenario_run_id,
         payload.decision_cutoff,
         payload.scor_assessment_id,
+        payload.portfolio_run_id,
     )
 
 
@@ -55,6 +56,7 @@ def create_decision_run(
         payload.scenario_run_id,
         payload.decision_cutoff,
         payload.scor_assessment_id,
+        payload.portfolio_run_id,
     )
     return serialize_run(run)
 
@@ -97,6 +99,21 @@ def retrieve_scor_evidence(
         serialize_evidence(item)
         for item in sorted(recommendation.evidence, key=lambda item: item.id)
         if item.evidence_type.startswith("scor_")
+    ]
+
+
+@router.get(
+    "/recommendations/{recommendation_id}/portfolio-evidence",
+    response_model=list[DecisionEvidenceResponse],
+)
+def retrieve_portfolio_evidence(
+    recommendation_id: UUID, db: Session = Depends(get_database_session)
+) -> list[dict[str, object]]:
+    recommendation = require_recommendation(db, str(recommendation_id))
+    return [
+        serialize_evidence(item)
+        for item in sorted(recommendation.evidence, key=lambda item: item.id)
+        if item.evidence_type.startswith("portfolio_")
     ]
 
 

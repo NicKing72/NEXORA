@@ -23,6 +23,30 @@ export type DecisionScorAssessment = {
   tied_processes: string[];
 };
 
+export type DecisionPortfolioRun = {
+  id: string;
+  dataset_id: string;
+  source_mode: "official";
+  cutoff: string;
+  created_at: string;
+  available_at: string;
+  calculation_version: string;
+  number_of_series: number;
+  critical_high_count: number;
+  incomplete_count: number;
+  coverage_evaluable_series: number;
+  forecast_run_ids: string[];
+  related_item: {
+    id: string;
+    rank: number;
+    product: string | null;
+    location: string | null;
+    risk_level: string;
+    priority_score: number;
+    score_status: string;
+  };
+};
+
 export type DecisionPreflight = {
   forecast_run_id: string;
   dataset_id: string;
@@ -76,6 +100,17 @@ export type DecisionPreflight = {
     criticality: Record<string, unknown>;
     decision_cutoff: string;
   };
+  portfolios: DecisionPortfolioRun[];
+  selected_portfolio: null | {
+    portfolio_run_id: string;
+    cutoff: string;
+    calculation_version: string;
+    number_of_series: number;
+    summary: Record<string, unknown>;
+    related_items: Array<Record<string, unknown>>;
+    decision_cutoff: string;
+    snapshot_immutable: true;
+  };
   missing_operational_inputs: string[];
   warnings: string[];
 };
@@ -119,6 +154,9 @@ export type DecisionRecommendation = {
   scor_assessment_id: string | null;
   scor_support_contribution: number;
   scor_origin: "originated" | "reinforced" | "evidence_request" | null;
+  portfolio_run_id: string | null;
+  portfolio_support_contribution: number;
+  portfolio_origin: "originated" | "reinforced" | "evidence_request" | null;
   decision_cutoff: string;
   status: DecisionStatus;
   limitations: string[];
@@ -134,6 +172,7 @@ export type DecisionRunSummary = {
   forecast_run_id: string;
   scenario_run_id: string | null;
   scor_assessment_id: string | null;
+  portfolio_run_id: string | null;
   dataset_id: string;
   decision_cutoff: string;
   status: string;
@@ -169,6 +208,7 @@ export type DecisionRun = DecisionRunSummary & {
     };
     missing_operational_inputs: string[];
     scor: Record<string, unknown> | null;
+    portfolio: Record<string, unknown> | null;
     immutable_sources: true;
     causal_inference: false;
   };
@@ -182,6 +222,8 @@ export type DecisionRun = DecisionRunSummary & {
     context_impact_count: number;
     scor_assessments_considered: number;
     scor_recommendation_count: number;
+    portfolios_considered: number;
+    portfolio_recommendation_count: number;
   };
   warnings: string[];
   recommendations: DecisionRecommendation[];
