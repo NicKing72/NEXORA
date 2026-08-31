@@ -14,6 +14,7 @@ NEXORA is a professional demand-intelligence workspace. It combines auditable da
 - **Decision Center:** ranked recommendations with evidence, limitations, lifecycle, provenance, optional baseline-versus-scenario comparison, and optional frozen SCOR/Portfolio evidence.
 - **SCOR Diagnostic:** auditable six-month KPI calculations for PLAN, SOURCE, MAKE, DELIVER, and RETURN, with optional company targets and cautious critical-link prioritization.
 - **Operational Portfolio:** immutable Forecast Run snapshots, optional logistics inputs, explainable coverage, descriptive exposure, and deterministic priority ranking.
+- **Model Explanation:** immutable reconstruction of Champion selection, model mathematics, backtesting, forecast intervals, provenance, and interpretation limits.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -167,6 +168,14 @@ NEXORA preserves missing inputs and zero denominators as explicit evidence state
 
 Portfolio Engine prioritizes attention; it does not calculate optimal quantities, execute orders, or replace an official forecast. Coverage is only shown when current inventory and a positive forecast average exist.
 
+### Explain a persisted forecast
+
+1. Open [http://localhost:3000/model-explain](http://localhost:3000/model-explain).
+2. Select a completed Forecast Run and review its scope and explanation cutoff.
+3. Choose **Generar explicación** to freeze Champion, ranking, folds, forecast points, intervals, provenance, and applicable limitations.
+4. Select any evaluated model to inspect its exact documented formula and persisted parameters.
+5. Reload the page and reopen the Explanation Run from history. No model is retrained during this workflow.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -194,4 +203,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, [docs/explanation-engine.md](docs/explanation-engine.md) for auditable forecast explanations, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

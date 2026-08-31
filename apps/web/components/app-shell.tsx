@@ -3,14 +3,28 @@
 import { Menu, Radio, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
+import {
+  DECISION_WORKSPACE_EVENT,
+  readDecisionWorkspace,
+} from "@/lib/decision-workspace";
 import { ui } from "@/lib/i18n";
 import { sections } from "@/lib/navigation";
 
 export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [decisionHref, setDecisionHref] = useState("/decision-center");
+
+  useEffect(() => {
+    const synchronizeDecisionHref = () => {
+      setDecisionHref(readDecisionWorkspace(window.sessionStorage));
+    };
+    synchronizeDecisionHref();
+    window.addEventListener(DECISION_WORKSPACE_EVENT, synchronizeDecisionHref);
+    return () => window.removeEventListener(DECISION_WORKSPACE_EVENT, synchronizeDecisionHref);
+  }, []);
 
   return (
     <div className="app-shell">
@@ -51,7 +65,7 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
               return (
                 <Link
                   className={`nav-link${isActive ? " nav-link--active" : ""}`}
-                  href={`/${item.slug}`}
+                  href={item.slug === "decision-center" ? decisionHref : `/${item.slug}`}
                   key={item.slug}
                   onClick={() => setIsMenuOpen(false)}
                 >

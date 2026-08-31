@@ -15,6 +15,13 @@ import {
   listDecisionRuns,
   updateDecisionStatus,
 } from "@/lib/decision-api";
+import {
+  parseDecisionHandoff,
+  resolveDecisionRunHandoff,
+  resolveExactSelection,
+  type DecisionHandoff,
+} from "@/lib/decision-handoff";
+import { rememberDecisionWorkspace } from "@/lib/decision-workspace";
 import type {
   DecisionPreflight,
   DecisionPortfolioRun,
@@ -80,41 +87,77 @@ export function DecisionCenter() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [portfolioHandoffNotice, setPortfolioHandoffNotice] = useState<string | null>(null);
-  const queryRef = useRef<URLSearchParams | null>(null);
-  const requestedPortfolioRef = useRef<{
-    portfolioRunId: string;
-    forecastRunId: string | null;
-  } | null>(null);
+  const handoffRef = useRef<DecisionHandoff | null>(null);
+  const handoffUnavailable = copy.setup.contextHandoffUnavailable;
 
   useEffect(() => {
-    queryRef.current = new URLSearchParams(window.location.search);
-    const requestedPortfolio = queryRef.current.get("portfolio_run_id");
-    requestedPortfolioRef.current = requestedPortfolio
-      ? {
-          portfolioRunId: requestedPortfolio,
-          forecastRunId: queryRef.current.get("forecast_run_id"),
-        }
-      : null;
+    const handoff = parseDecisionHandoff(window.location.search);
+    handoffRef.current = handoff;
     let active = true;
     const localCutoff = toLocalInput(new Date());
-    Promise.all([listDecisionForecasts(), listDecisionRuns()])
-      .then(([forecastItems, runItems]) => {
+    const requestedDecision = handoff.decisionRunId
+      ? getDecisionRun(handoff.decisionRunId)
+          .then((run) => ({ run, unavailable: false }))
+          .catch(() => ({ run: null, unavailable: true }))
+      : Promise.resolve({ run: null, unavailable: false });
+    Promise.all([listDecisionForecasts(), listDecisionRuns(), requestedDecision])
+      .then(([forecastItems, runItems, decisionResult]) => {
         if (!active) return;
         const completed = forecastItems.filter((item) => item.status === "completed");
-        const requestedRun = queryRef.current?.get("forecast_run_id");
-        const requestedDataset = queryRef.current?.get("dataset_id");
-        const preferred = completed.find((item) => item.id === requestedRun)
-          ?? completed.find((item) => item.dataset_id === requestedDataset)
-          ?? completed[0];
         setForecasts(completed);
         setRuns(runItems);
+        if (decisionResult.unavailable) {
+          const exactForecast = handoff.forecastRunId
+            ? completed.find((item) => item.id === handoff.forecastRunId)
+            : null;
+          setCutoff(localCutoff);
+          setForecastRunId(exactForecast?.id ?? "");
+          setError(handoffUnavailable);
+          handoffRef.current = null;
+          return;
+        }
+        const storedDecision = decisionResult.run;
+        if (storedDecision) {
+          const resolved = resolveDecisionRunHandoff(handoff, storedDecision);
+          if (!resolved.ok) {
+            setCutoff(localCutoff);
+            setForecastRunId("");
+            setError(handoffUnavailable);
+            handoffRef.current = null;
+            return;
+          }
+          setForecastRunId(storedDecision.forecast_run_id);
+          setScenarioRunId(storedDecision.scenario_run_id ?? "");
+          setScorAssessmentId(storedDecision.scor_assessment_id ?? "");
+          setPortfolioRunId(storedDecision.portfolio_run_id ?? "");
+          setCutoff(toLocalInput(new Date(storedDecision.decision_cutoff)));
+          setRun(storedDecision);
+          setSelected(storedDecision.recommendations[0] ?? null);
+          handoffRef.current = null;
+          return;
+        }
+        const exactForecast = handoff.forecastRunId
+          ? completed.find((item) => item.id === handoff.forecastRunId)
+          : null;
+        if (handoff.forecastRunId && !exactForecast) {
+          setCutoff(localCutoff);
+          setForecastRunId("");
+          setError(handoffUnavailable);
+          handoffRef.current = null;
+          return;
+        }
         setCutoff(localCutoff);
-        setForecastRunId(preferred?.id ?? "");
+        setForecastRunId(exactForecast?.id ?? completed[0]?.id ?? "");
       })
-      .catch((cause: Error) => active && setError(cause.message))
+      .catch(() => {
+        if (active) {
+          setError(handoffUnavailable);
+          handoffRef.current = null;
+        }
+      })
       .finally(() => active && setLoading(false));
     return () => { active = false; };
-  }, []);
+  }, [handoffUnavailable]);
 
   useEffect(() => {
     if (!forecastRunId || !cutoff) return;
@@ -130,36 +173,42 @@ export function DecisionCenter() {
       .then((result) => {
         if (!active) return;
         setPreflight(result);
-        const requestedScenario = queryRef.current?.get("scenario_run_id");
-        if (!scenarioRunId && requestedScenario && result.scenarios.some((item) => item.id === requestedScenario)) {
-          setScenarioRunId(requestedScenario);
-        }
-        const requestedScor = queryRef.current?.get("scor_assessment_id");
-        if (!scorAssessmentId && requestedScor && (result.scor_assessments ?? []).some((item) => item.id === requestedScor)) {
-          setScorAssessmentId(requestedScor);
-        }
-        const portfolioRequest = requestedPortfolioRef.current;
-        const requestTargetsCurrentForecast = portfolioRequest
-          && (!portfolioRequest.forecastRunId
-            || portfolioRequest.forecastRunId === result.forecast_run_id);
-        if (!portfolioRunId && portfolioRequest && requestTargetsCurrentForecast) {
-          const compatible = result.portfolios.some(
-            (item) => item.id === portfolioRequest.portfolioRunId,
+        const pending = handoffRef.current;
+        const targetsCurrentForecast = pending
+          && !pending.decisionRunId
+          && (!pending.forecastRunId || pending.forecastRunId === result.forecast_run_id);
+        if (pending && targetsCurrentForecast) {
+          const scenario = resolveExactSelection(
+            pending.scenarioRunId,
+            result.scenarios.map((item) => item.id),
           );
-          if (compatible) {
-            setPortfolioRunId(portfolioRequest.portfolioRunId);
-            setPortfolioHandoffNotice(null);
-          } else {
-            setPortfolioRunId("");
-            setPortfolioHandoffNotice(copy.setup.portfolioHandoffUnavailable);
-          }
-          requestedPortfolioRef.current = null;
+          const scor = resolveExactSelection(
+            pending.scorAssessmentId,
+            (result.scor_assessments ?? []).map((item) => item.id),
+          );
+          const portfolio = resolveExactSelection(
+            pending.portfolioRunId,
+            result.portfolios.map((item) => item.id),
+          );
+          setScenarioRunId(scenario.value);
+          setScorAssessmentId(scor.value);
+          setPortfolioRunId(portfolio.value);
+          const unavailable = scenario.unavailable || scor.unavailable || portfolio.unavailable;
+          setPortfolioHandoffNotice(portfolio.unavailable ? copy.setup.portfolioHandoffUnavailable : null);
+          if (unavailable) setError(handoffUnavailable);
+          handoffRef.current = null;
         }
-        queryRef.current = null;
+        const runMatchesResolvedContext = run
+          && run.forecast_run_id === forecastRunId
+          && (run.scenario_run_id ?? "") === scenarioRunId
+          && (run.scor_assessment_id ?? "") === scorAssessmentId
+          && (run.portfolio_run_id ?? "") === portfolioRunId
+          && toLocalInput(new Date(run.decision_cutoff)) === cutoff;
+        if (runMatchesResolvedContext) rememberDecisionWorkspace(run);
       })
       .catch((cause: Error) => active && setError(cause.message));
     return () => { active = false; };
-  }, [forecastRunId, scenarioRunId, scorAssessmentId, portfolioRunId, cutoff, copy.setup.portfolioHandoffUnavailable]);
+  }, [forecastRunId, scenarioRunId, scorAssessmentId, portfolioRunId, cutoff, copy.setup.portfolioHandoffUnavailable, handoffUnavailable, run]);
 
   const activeForecast = useMemo(
     () => forecasts.find((item) => item.id === forecastRunId) ?? null,
@@ -190,6 +239,7 @@ export function DecisionCenter() {
       });
       setRun(result);
       setSelected(result.recommendations[0] ?? null);
+      rememberDecisionWorkspace(result);
       setRuns(await listDecisionRuns());
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : copy.error);
@@ -201,7 +251,7 @@ export function DecisionCenter() {
   function selectPortfolio(nextId: string) {
     setPortfolioRunId(nextId);
     setPortfolioHandoffNotice(null);
-    requestedPortfolioRef.current = null;
+    handoffRef.current = null;
     const params = new URLSearchParams(window.location.search);
     if (nextId) {
       params.set("portfolio_run_id", nextId);
@@ -276,7 +326,7 @@ export function DecisionCenter() {
         {error && <div className="ds-error-message">{error}</div>}
         <div className="dc-run"><button type="button" disabled={analyzing || !preflight} onClick={() => void analyze()}>{analyzing ? <RefreshCw size={16} /> : <Play size={16} />}{analyzing ? copy.setup.analyzing : copy.setup.analyze}</button><small>Forecast: {activeForecast?.id} · corte auditable {cutoff}</small></div>
       </section>
-      {run && <><section className="dc-kpis"><article><span>{copy.kpis.open}</span><strong>{openCount}</strong></article><article><span>{copy.kpis.high}</span><strong>{run.summary.high_priority_count}</strong></article><article><span>{copy.kpis.review}</span><strong>{run.summary.requires_review_count}</strong></article><article><span>{copy.kpis.scenarios}</span><strong>{run.summary.scenario_considered ? 1 : 0}</strong></article><article><span>{copy.kpis.scor}</span><strong>{run.summary.scor_assessments_considered}</strong></article><article><span>{copy.kpis.portfolio}</span><strong>{run.summary.portfolios_considered}</strong></article></section><DecisionList recommendations={run.recommendations} selectedId={selected?.id ?? null} onSelect={setSelected} /><DecisionDetail recommendation={selected} saving={saving} onStatus={(status) => void updateStatus(status)} /><DecisionComparison run={run} /></>}
+      {run && <><section className="dc-kpis"><article><span>{copy.kpis.open}</span><strong>{openCount}</strong></article><article><span>{copy.kpis.high}</span><strong>{run.summary.high_priority_count}</strong></article><article><span>{copy.kpis.review}</span><strong>{run.summary.requires_review_count}</strong></article><article><span>{copy.kpis.scenarios}</span><strong>{run.summary.scenario_considered ? 1 : 0}</strong></article><article><span>{copy.kpis.scor}</span><strong>{run.summary.scor_assessments_considered}</strong></article><article><span>{copy.kpis.portfolio}</span><strong>{run.summary.portfolios_considered}</strong></article></section><DecisionList recommendations={run.recommendations} selectedId={selected?.id ?? null} onSelect={setSelected} /><DecisionDetail decisionRun={run} recommendation={selected} saving={saving} onStatus={(status) => void updateStatus(status)} /><DecisionComparison run={run} /></>}
       <section className="dc-panel"><div className="dc-heading"><div><span>{copy.history.index}</span><h2>{copy.history.title}</h2></div><History size={17} /></div>{!runs.length ? <p className="dc-muted">{copy.history.empty}</p> : <div className="dc-history">{runs.map((item) => <button type="button" key={item.id} disabled={analyzing} onClick={() => void openStored(item)}><span><strong>{item.created_at.slice(0, 10)} · {item.recommendation_count} recomendaciones</strong><small>{item.forecast_run_id}{item.scenario_run_id ? " · con escenario" : " · baseline oficial"}{item.scor_assessment_id ? " · con SCOR" : ""}{item.portfolio_run_id ? " · con Portafolio" : ""}</small></span><b>{item.high_priority_count} alta/crítica</b></button>)}</div>}</section>
     </div>
   );
