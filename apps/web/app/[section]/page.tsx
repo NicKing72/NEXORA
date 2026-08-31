@@ -8,6 +8,7 @@ import { DecisionCenter } from "@/components/decision-center/decision-center";
 import { DemandExplorer } from "@/components/demand-explorer/demand-explorer";
 import { ForecastLab } from "@/components/forecast-lab/forecast-lab";
 import { PlaceholderView } from "@/components/placeholder-view";
+import { Portfolio } from "@/components/portfolio/portfolio";
 import { ScenarioLab } from "@/components/scenario-lab/scenario-lab";
 import { ScorDiagnostic } from "@/components/scor-diagnostic/scor-diagnostic";
 import { sections } from "@/lib/navigation";
@@ -65,6 +66,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "scor-diagnostic") {
     return <ScorDiagnostic />;
+  }
+
+  if (section.slug === "portfolio") {
+    return <Portfolio />;
   }
 
   return <PlaceholderView section={section} />;

@@ -13,6 +13,7 @@ NEXORA is a professional demand-intelligence workspace. It combines auditable da
 - **Scenario Lab:** conditional, auditable simulations over an immutable official Forecast Run.
 - **Decision Center:** ranked recommendations with evidence, limitations, lifecycle, provenance, optional baseline-versus-scenario comparison, and optional frozen SCOR evidence.
 - **SCOR Diagnostic:** auditable six-month KPI calculations for PLAN, SOURCE, MAKE, DELIVER, and RETURN, with optional company targets and cautious critical-link prioritization.
+- **Operational Portfolio:** immutable Forecast Run snapshots, optional logistics inputs, explainable coverage, descriptive exposure, and deterministic priority ranking.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -154,6 +155,17 @@ Decision Engine does not execute orders or calculate optimal quantities. Invento
 
 NEXORA preserves missing inputs and zero denominators as explicit evidence states. For monthly ratios it divides the six-month sum of numerators by the sum of denominators; it never averages monthly percentages. The NEXORA Gap Score is an internal, explainable distance-to-target measure—not an official SCOR score. This milestone does not optimize logistics or change forecasts.
 
+### Prioritize the operational portfolio
+
+1. Complete one or more compatible Forecast Runs, then open [http://localhost:3000/portfolio](http://localhost:3000/portfolio).
+2. Select a compatible dataset/frequency/horizon group and confirm the cutoff.
+3. Optionally enter inventory, inbound inventory, safety stock, or lead time. Empty fields remain missing and are never interpreted as zero.
+4. Select **Analizar portafolio** and inspect the summary, stable ranking, coverage, score components, missing inputs, and frozen provenance.
+5. Alternatively select **Usar demo de portafolio** to inspect sufficient, partial, insufficient, and controlled-tie cases without creating or changing Forecast Runs.
+6. Reopen a Portfolio Run from history after reloading the page.
+
+Portfolio Engine prioritizes attention; it does not calculate optimal quantities, execute orders, or replace an official forecast. Coverage is only shown when current inventory and a positive forecast average exist.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -181,4 +193,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

@@ -20,6 +20,7 @@ from nexora_api.models.decision import (
     DecisionRecommendation,
     DecisionRun,
 )
+from nexora_api.models.portfolio import PortfolioItem, PortfolioRun
 from nexora_api.models.scenario import (
     ScenarioAssumption,
     ScenarioAudit,
@@ -55,6 +56,8 @@ __all__ = [
     "ForecastModelResult",
     "ForecastPoint",
     "ForecastRun",
+    "PortfolioItem",
+    "PortfolioRun",
     "ScenarioAssumption",
     "ScenarioAudit",
     "ScenarioPoint",
