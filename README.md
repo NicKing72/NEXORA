@@ -15,6 +15,7 @@ NEXORA is a professional demand-intelligence workspace. It combines auditable da
 - **SCOR Diagnostic:** auditable six-month KPI calculations for PLAN, SOURCE, MAKE, DELIVER, and RETURN, with optional company targets and cautious critical-link prioritization.
 - **Operational Portfolio:** immutable Forecast Run snapshots, optional logistics inputs, explainable coverage, descriptive exposure, and deterministic priority ranking.
 - **Model Explanation:** immutable reconstruction of Champion selection, model mathematics, backtesting, forecast intervals, provenance, and interpretation limits.
+- **Reporting Engine:** reproducible executive, forecast, decision, SCOR, and Portfolio reports assembled from immutable persisted snapshots, with HTML, JSON, and CSV exports.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -176,6 +177,18 @@ Portfolio Engine prioritizes attention; it does not calculate optimal quantities
 4. Select any evaluated model to inspect its exact documented formula and persisted parameters.
 5. Reload the page and reopen the Explanation Run from history. No model is retrained during this workflow.
 
+### Build an auditable report
+
+1. Open [http://localhost:3000/reports](http://localhost:3000/reports).
+2. Choose the report type, an explicit persisted source, the report cutoff, and optional compatible layers.
+3. Select **Validar fuentes**. Review compatibility, source coverage, warnings, and limitations before anything is persisted.
+4. Select **Generar reporte** and inspect the ordered sections, provenance IDs, frozen metrics, and completeness.
+5. Open the printable HTML, auditable JSON, or tabular CSV export.
+6. Reload the page or reopen the exact Report Run from **Reportes anteriores**. The URL retains `report_run_id`; no source is selected by list position.
+7. Use **Usar demo de reporte** for a synthetic, decoupled example that does not modify official Forecast Runs.
+
+Reporting Engine never retrains a model or mutates Forecast, Scenario, SCOR, Portfolio, Decision, or Explanation Runs. Missing optional layers remain absent rather than becoming zero. See [docs/reporting-engine.md](docs/reporting-engine.md) for compatibility and anti-leakage rules.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -203,4 +216,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, [docs/explanation-engine.md](docs/explanation-engine.md) for auditable forecast explanations, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, [docs/explanation-engine.md](docs/explanation-engine.md) for auditable forecast explanations, [docs/reporting-engine.md](docs/reporting-engine.md) for reproducible reporting, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import type { DecisionRecommendation, DecisionRun, DecisionStatus } from "@/lib/decision-types";
 import { ui } from "@/lib/i18n";
+import { buildReportsHref } from "@/lib/report-handoff";
 
 type Props = {
   decisionRun: DecisionRun;
@@ -55,6 +56,13 @@ export function DecisionDetail({ decisionRun, recommendation, saving, onStatus }
   if (decisionRun.scenario_run_id) explanationParameters.set("scenario_run_id", decisionRun.scenario_run_id);
   if (decisionRun.scor_assessment_id) explanationParameters.set("scor_assessment_id", decisionRun.scor_assessment_id);
   if (decisionRun.portfolio_run_id) explanationParameters.set("portfolio_run_id", decisionRun.portfolio_run_id);
+  const reportHref = buildReportsHref({
+    forecast_run_id: decisionRun.forecast_run_id,
+    scenario_run_id: decisionRun.scenario_run_id,
+    scor_assessment_id: decisionRun.scor_assessment_id,
+    portfolio_run_id: decisionRun.portfolio_run_id,
+    decision_run_id: decisionRun.id,
+  });
   return (
     <section className="dc-panel dc-detail">
       <div className="dc-heading">
@@ -101,6 +109,7 @@ export function DecisionDetail({ decisionRun, recommendation, saving, onStatus }
         <Fingerprint size={17} />
         <span><strong>{copy.provenance}</strong><p>Forecast: {recommendation.forecast_run_id}{recommendation.scenario_run_id ? ` · Escenario: ${recommendation.scenario_run_id}` : ""}{recommendation.portfolio_run_id ? ` · Portafolio: ${recommendation.portfolio_run_id}` : ""}</p><small>{copy.noCausality}</small></span>
         <Link href={`/model-explain?${explanationParameters.toString()}`}><ScanSearch size={15} />{copy.openExplanation}</Link>
+        <Link href={reportHref}>{ui.reports.handoff.create}</Link>
       </div>
       <div className="dc-boundaries"><ShieldCheck size={16} />{copy.noOrder}{recommendation.scenario_run_id && <><AlertTriangle size={16} />{ui.decisionCenter.setup.scenarioBoundary}</>}</div>
       <label className="dc-lifecycle">

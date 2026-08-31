@@ -10,6 +10,7 @@ import { ForecastLab } from "@/components/forecast-lab/forecast-lab";
 import { ExplanationCenter } from "@/components/model-explanation/explanation-center";
 import { PlaceholderView } from "@/components/placeholder-view";
 import { Portfolio } from "@/components/portfolio/portfolio";
+import { ReportCenter } from "@/components/reports/report-center";
 import { ScenarioLab } from "@/components/scenario-lab/scenario-lab";
 import { ScorDiagnostic } from "@/components/scor-diagnostic/scor-diagnostic";
 import { sections } from "@/lib/navigation";
@@ -75,6 +76,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "model-explain") {
     return <ExplanationCenter />;
+  }
+
+  if (section.slug === "reports") {
+    return <ReportCenter />;
   }
 
   return <PlaceholderView section={section} />;

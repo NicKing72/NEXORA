@@ -28,6 +28,7 @@ import type {
   ScorProcess,
 } from "@/lib/scor-types";
 import { ui } from "@/lib/i18n";
+import { buildReportsHref } from "@/lib/report-handoff";
 
 function percent(value: number | undefined) {
   return value == null ? "—" : `${(value * 100).toFixed(1)}%`;
@@ -175,7 +176,7 @@ export function ScorDiagnostic() {
       <header className="workspace-header sd-header"><div><span className="eyebrow">{copy.header.eyebrow}</span><h1>{copy.header.title}</h1><p>{copy.header.subtitle}</p></div><div className="sd-boundary"><ShieldCheck size={18} /><span>{copy.header.boundary}<strong>{copy.header.noOptimization}</strong></span></div></header>
       {error && <div className="ds-error-message">{error}</div>}
       <section className="sd-panel">
-        <div className="sd-heading"><div><span>{copy.scope.index}</span><h2>{copy.scope.title}</h2></div><div className="sd-actions"><button type="button" onClick={() => setFormOpen(true)}><Plus size={15} />{copy.scope.new}</button><button type="button" disabled={working} onClick={() => void regenerateDemo()}><Database size={15} />{copy.scope.demo}</button><button className="sd-primary" type="button" disabled={working || !assessment} onClick={() => void calculate()}><Calculator size={15} />{working ? copy.scope.calculating : copy.scope.calculate}</button>{assessment?.status === "calculated" && <Link className="sd-decision-link" href={`/decision-center?scor_assessment_id=${assessment.id}`}>{copy.scope.openDecisions}</Link>}</div></div>
+        <div className="sd-heading"><div><span>{copy.scope.index}</span><h2>{copy.scope.title}</h2></div><div className="sd-actions"><button type="button" onClick={() => setFormOpen(true)}><Plus size={15} />{copy.scope.new}</button><button type="button" disabled={working} onClick={() => void regenerateDemo()}><Database size={15} />{copy.scope.demo}</button><button className="sd-primary" type="button" disabled={working || !assessment} onClick={() => void calculate()}><Calculator size={15} />{working ? copy.scope.calculating : copy.scope.calculate}</button>{assessment?.status === "calculated" && <><Link className="sd-decision-link" href={`/decision-center?scor_assessment_id=${assessment.id}`}>{copy.scope.openDecisions}</Link><Link className="sd-decision-link" href={buildReportsHref({ forecast_run_id: assessment.forecast_run_id, scor_assessment_id: assessment.id })}>{ui.reports.handoff.create}</Link></>}</div></div>
         <div className="sd-scope-grid">
           <label><span>{copy.scope.assessment}</span><select value={assessment?.id ?? ""} disabled={working || !assessments.length} onChange={(event) => void openAssessment(event.target.value)}>{!assessments.length && <option value="">Sin diagnósticos</option>}{assessments.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
           <div><span>{copy.scope.company}</span><strong>{assessment?.company_name ?? "—"}</strong></div>

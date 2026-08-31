@@ -12,10 +12,11 @@ import { Leaderboard } from "@/components/forecast-lab/leaderboard";
 import { ModelDetail } from "@/components/forecast-lab/model-detail";
 import { PreflightPanel } from "@/components/forecast-lab/preflight-panel";
 import { getRelevantSignalsForSeries } from "@/lib/context-api";
-import { createForecastRun, getForecastPreflight } from "@/lib/forecast-api";
+import { createForecastRun, getForecastPreflight, getForecastRun } from "@/lib/forecast-api";
 import type { ForecastModelResult, ForecastPreflight, ForecastRequest, ForecastRun } from "@/lib/forecast-types";
 import { getReadyDatasets, getSeriesDimensions } from "@/lib/series-api";
 import { ui } from "@/lib/i18n";
+import { buildReportsHref } from "@/lib/report-handoff";
 import { formatSeriesDate } from "@/lib/series-formatters";
 import type { ReadyDatasetSummary, SeriesDimensions } from "@/lib/series-types";
 
@@ -34,11 +35,30 @@ export function ForecastLab() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const queryRef = useRef<URLSearchParams | null>(null);
+  const requestedRunRef = useRef<ForecastRun | null>(null);
 
   useEffect(() => {
     queryRef.current = new URLSearchParams(window.location.search);
     const controller = new AbortController();
-    void getReadyDatasets(controller.signal).then((items) => {
+    void getReadyDatasets(controller.signal).then(async (items) => {
+      const requestedRunId = queryRef.current?.get("forecast_run_id");
+      if (requestedRunId) {
+        const stored = await getForecastRun(requestedRunId, controller.signal);
+        if (!items.some((item) => item.id === stored.dataset_id)) throw new Error(ui.reports.errors.invalidHandoff);
+        requestedRunRef.current = stored;
+        setDatasets(items);
+        setRun(stored);
+        setSelectedModel(stored.models.find((model) => model.rank === 1) ?? stored.models[0] ?? null);
+        setRequest({
+          dataset_id: stored.dataset_id,
+          product: stored.selection.product,
+          location: stored.selection.location,
+          category: stored.selection.category,
+          frequency: stored.frequency as ForecastRequest["frequency"],
+          horizon: stored.requested_horizon,
+        });
+        return;
+      }
       const preferred = queryRef.current?.get("dataset_id");
       const datasetId = items.some((item) => item.id === preferred) ? preferred! : items[0]?.id ?? "";
       setDatasets(items);
@@ -52,10 +72,11 @@ export function ForecastLab() {
     const controller = new AbortController();
     void getSeriesDimensions(request.dataset_id, controller.signal).then((next) => {
       const query = queryRef.current;
-      const product = query?.get("product");
-      const location = query?.get("location");
-      const category = query?.get("category");
-      const frequency = query?.get("frequency");
+      const stored = requestedRunRef.current;
+      const product = stored?.selection.product ?? query?.get("product");
+      const location = stored?.selection.location ?? query?.get("location");
+      const category = stored?.selection.category ?? query?.get("category");
+      const frequency = stored?.frequency ?? query?.get("frequency");
       const selectedFrequency = next.available_frequencies.includes(frequency as ForecastRequest["frequency"])
         ? frequency as ForecastRequest["frequency"]
         : "auto";
@@ -70,9 +91,10 @@ export function ForecastLab() {
         location: location && next.locations.some((item) => item.value === location) ? location : next.locations[0]?.value ?? null,
         category: category && next.categories.some((item) => item.value === category) ? category : null,
         frequency: selectedFrequency,
-        horizon: resolvedFrequency === "daily" ? 30 : 12,
+        horizon: stored?.requested_horizon ?? (resolvedFrequency === "daily" ? 30 : 12),
       }));
       queryRef.current = null;
+      requestedRunRef.current = null;
     }).catch((cause: Error) => { if (cause.name !== "AbortError") setError(cause.message); });
     return () => controller.abort();
   }, [request.dataset_id]);
@@ -139,7 +161,7 @@ export function ForecastLab() {
     {!loadingDatasets && datasets.length === 0 && <section className="fx-empty"><FlaskConical size={30} /><h2>{ui.forecastLab.empty.title}</h2><p>{ui.forecastLab.empty.description}</p><Link href="/data-studio" className="dx-primary-action">{ui.forecastLab.empty.action}</Link></section>}
     {!loadingDatasets && dimensions && <><ForecastSelector datasets={datasets} dimensions={dimensions} request={request} disabled={running} onChange={updateRequest} /><div className="fx-context-notice"><Radar size={15} /><span>{contextSignalCount !== null && <strong>{ui.forecastLab.header.relevantSignals.replace("{count}", String(contextSignalCount))}</strong>}{ui.forecastLab.header.contextBoundary}</span><Link href={contextRadarUrl}>{ui.forecastLab.header.openContextRadar}</Link></div><PreflightPanel preflight={preflight} loading={loadingPreflight} />{error && <div className="ds-error-message">{error}</div>}<section className="fx-run-zone"><button type="button" disabled={running || loadingPreflight || !preflight} onClick={() => void execute()}>{running ? <RefreshCw size={17} /> : <FlaskConical size={17} />}{running ? ui.forecastLab.run.running : ui.forecastLab.run.action}</button>{running && <div className="fx-run-stages">{ui.forecastLab.run.stages.map((stage) => <span key={stage}>{stage}</span>)}</div>}<small>{ui.forecastLab.run.syncNote}</small></section>
       {run && run.status === "failed" && <div className="ds-error-message">{ui.forecastLab.run.failed}</div>}
-      {run && champion && <><ChampionCard run={run} champion={champion} /><div className="fx-context-notice"><BrainCircuit size={15} /><span><strong>{ui.decisionCenter.links.fromForecast}</strong>Las recomendaciones usarán este Forecast Run sin modificarlo.</span><Link href={`/decision-center?forecast_run_id=${run.id}`}>{ui.decisionCenter.links.fromForecast}</Link></div><Leaderboard models={run.models} frequency={run.frequency} selectedId={selectedModel?.id ?? null} onSelect={setSelectedModel} /><ForecastChart run={run} /><div className="fx-audit-grid"><ModelDetail model={selectedModel} /><BacktestingView model={selectedModel ?? champion} /></div><p className="fx-disclaimer">{ui.forecastLab.disclaimer}</p></>}
+      {run && champion && <><ChampionCard run={run} champion={champion} /><div className="fx-context-notice"><BrainCircuit size={15} /><span><strong>{ui.decisionCenter.links.fromForecast}</strong>Las recomendaciones usarán este Forecast Run sin modificarlo.</span><Link href={`/decision-center?forecast_run_id=${run.id}`}>{ui.decisionCenter.links.fromForecast}</Link><Link href={buildReportsHref({ forecast_run_id: run.id })}>{ui.reports.handoff.create}</Link></div><Leaderboard models={run.models} frequency={run.frequency} selectedId={selectedModel?.id ?? null} onSelect={setSelectedModel} /><ForecastChart run={run} /><div className="fx-audit-grid"><ModelDetail model={selectedModel} /><BacktestingView model={selectedModel ?? champion} /></div><p className="fx-disclaimer">{ui.forecastLab.disclaimer}</p></>}
     </>}
   </div>;
 }

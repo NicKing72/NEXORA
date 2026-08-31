@@ -22,6 +22,7 @@ from nexora_api.models.decision import (
 )
 from nexora_api.models.explanation import ExplanationEvidence, ExplanationRun
 from nexora_api.models.portfolio import PortfolioItem, PortfolioRun
+from nexora_api.models.report import ReportRun, ReportSection
 from nexora_api.models.scenario import (
     ScenarioAssumption,
     ScenarioAudit,
@@ -61,6 +62,8 @@ __all__ = [
     "ExplanationRun",
     "PortfolioItem",
     "PortfolioRun",
+    "ReportRun",
+    "ReportSection",
     "ScenarioAssumption",
     "ScenarioAudit",
     "ScenarioPoint",
