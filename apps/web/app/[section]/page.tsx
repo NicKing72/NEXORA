@@ -7,6 +7,7 @@ import { DataStudio } from "@/components/data-studio/data-studio";
 import { DecisionCenter } from "@/components/decision-center/decision-center";
 import { DemandExplorer } from "@/components/demand-explorer/demand-explorer";
 import { ForecastLab } from "@/components/forecast-lab/forecast-lab";
+import { InventoryWorkspace } from "@/components/inventory/inventory-workspace";
 import { ExplanationCenter } from "@/components/model-explanation/explanation-center";
 import { PlaceholderView } from "@/components/placeholder-view";
 import { Portfolio } from "@/components/portfolio/portfolio";
@@ -72,6 +73,10 @@ export default async function SectionPage({ params }: SectionPageProps) {
 
   if (section.slug === "portfolio") {
     return <Portfolio />;
+  }
+
+  if (section.slug === "inventory") {
+    return <InventoryWorkspace />;
   }
 
   if (section.slug === "model-explain") {

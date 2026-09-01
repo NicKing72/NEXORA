@@ -16,6 +16,7 @@ NEXORA is a professional demand-intelligence workspace. It combines auditable da
 - **Operational Portfolio:** immutable Forecast Run snapshots, optional logistics inputs, explainable coverage, descriptive exposure, and deterministic priority ranking.
 - **Model Explanation:** immutable reconstruction of Champion selection, model mathematics, backtesting, forecast intervals, provenance, and interpretation limits.
 - **Reporting Engine:** reproducible executive, forecast, decision, SCOR, and Portfolio reports assembled from immutable persisted snapshots, with HTML, JSON, and CSV exports.
+- **Inventory & Replenishment Engine:** immutable inventory diagnostics with coverage, lead-time demand, safety stock, ROP, EOQ, explicit constraints, and non-executing replenishment proposals.
 - **Data foundation:** SQLAlchemy metadata in SQLite plus safe local source/canonical files under `data/`.
 - **Quality checks:** ESLint, TypeScript compilation, Ruff, Pytest, and a production web build.
 
@@ -189,6 +190,17 @@ Portfolio Engine prioritizes attention; it does not calculate optimal quantities
 
 Reporting Engine never retrains a model or mutates Forecast, Scenario, SCOR, Portfolio, Decision, or Explanation Runs. Missing optional layers remain absent rather than becoming zero. See [docs/reporting-engine.md](docs/reporting-engine.md) for compatibility and anti-leakage rules.
 
+### Quantify inventory and replenishment evidence
+
+1. Open [http://localhost:3000/inventory](http://localhost:3000/inventory).
+2. Select an exact persisted Forecast Run and, optionally, a compatible Scenario or Portfolio.
+3. Enter only known operational values. Leave unknown inventory, lead time, service level, costs, MOQ, multiples, capacity, commitments, or backorders empty.
+4. Select **Validar compatibilidad**, then **Ejecutar análisis**. Review physical coverage separately from coverage with transit, lead-time demand, safety stock provenance, ROP, EOQ, raw requirement, constraints, risk, and missing inputs.
+5. Use **Usar demo de inventario** to inspect deterministic critical, sufficient, excess, constrained, calculable, and manual-review cases.
+6. Reload the generated `inventory_run_id` or reopen it from history to verify the frozen snapshot.
+
+Inventory Engine proposes quantities only when critical inputs are calculable. It does not execute purchases, alter real inventory, replace the official forecast, or integrate automatically with Decision/Reporting in Milestone 10A.
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -216,4 +228,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, [docs/explanation-engine.md](docs/explanation-engine.md) for auditable forecast explanations, [docs/reporting-engine.md](docs/reporting-engine.md) for reproducible reporting, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, [docs/explanation-engine.md](docs/explanation-engine.md) for auditable forecast explanations, [docs/reporting-engine.md](docs/reporting-engine.md) for reproducible reporting, [docs/inventory-engine.md](docs/inventory-engine.md) for inventory mathematics and safeguards, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

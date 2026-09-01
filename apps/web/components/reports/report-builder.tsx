@@ -1,6 +1,7 @@
 import { FlaskConical, ScanSearch, ShieldCheck } from "lucide-react";
 
 import { ui } from "@/lib/i18n";
+import { reportBuilderIsBusy } from "@/lib/report-builder-state";
 import type { ReportRequest, ReportType, SourceSummary } from "@/lib/report-types";
 
 type Props = {
@@ -48,7 +49,7 @@ function SourceSelect({
 
 export function ReportBuilder(props: Readonly<Props>) {
   const copy = ui.reports.builder;
-  const busy = props.loading || props.validating || props.generating;
+  const busy = reportBuilderIsBusy(props.loading, props.validating, props.generating);
   return (
     <section className="rp-panel rp-builder">
       <div className="rp-section-heading">

@@ -10,6 +10,7 @@ import {
   ScanSearch,
   Sparkles,
   Table2,
+  Warehouse,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,6 +33,7 @@ export const sections: NavigationSection[] = [
   { slug: "decision-center", ...ui.navigation.sections.decisionCenter, icon: CircleGauge },
   { slug: "scor-diagnostic", ...ui.navigation.sections.scorDiagnostic, icon: Route },
   { slug: "portfolio", ...ui.navigation.sections.portfolio, icon: Boxes },
+  { slug: "inventory", ...ui.navigation.sections.inventory, icon: Warehouse },
   { slug: "model-explain", ...ui.navigation.sections.modelExplain, icon: ScanSearch },
   { slug: "reports", ...ui.navigation.sections.reports, icon: FileText },
 ];

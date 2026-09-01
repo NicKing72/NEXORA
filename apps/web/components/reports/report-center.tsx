@@ -65,9 +65,9 @@ export function ReportCenter() {
   const [history, setHistory] = useState<ReportRunSummary[]>([]);
   const [preflight, setPreflight] = useState<ReportPreflight | null>(null);
   const [run, setRun] = useState<ReportRun | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [validating, setValidating] = useState(false);
-  const [generating, setGenerating] = useState(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [validating, setValidating] = useState<boolean>(false);
+  const [generating, setGenerating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const queryRef = useRef<URLSearchParams | null>(null);
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { reportBuilderIsBusy } from "../lib/report-builder-state.ts";
 import { buildReportsHref, readReportHandoff } from "../lib/report-handoff.ts";
 
 const ids = {
@@ -43,4 +44,10 @@ test("una pestaña nueva de Reportes permanece limpia", () => {
     decision_run_id: null,
     explanation_run_id: null,
   });
+});
+
+test("el estado disabled de ReportBuilder siempre es booleano y determinista", () => {
+  assert.equal(reportBuilderIsBusy(false, false, false), false);
+  assert.equal(reportBuilderIsBusy(null, undefined, false), false);
+  assert.equal(reportBuilderIsBusy(false, true, false), true);
 });
