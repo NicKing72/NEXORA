@@ -75,6 +75,8 @@ class InventoryRequest(BaseModel):
     scenario_run_id: str | None = None
     portfolio_run_id: str | None = None
     decision_run_id: str | None = None
+    inventory_source: Literal["manual", "kardex"] = "manual"
+    kardex_product_id: str | None = None
     cutoff: datetime
     operational_inputs: InventoryOperationalInputs = Field(
         default_factory=InventoryOperationalInputs
@@ -89,9 +91,21 @@ class InventoryRequest(BaseModel):
             value = value.replace(tzinfo=UTC)
         return value.astimezone(UTC)
 
-    @validator("forecast_run_id", "scenario_run_id", "portfolio_run_id", "decision_run_id")
+    @validator(
+        "forecast_run_id",
+        "scenario_run_id",
+        "portfolio_run_id",
+        "decision_run_id",
+        "kardex_product_id",
+    )
     def validate_uuid(cls, value: str | None) -> str | None:
         return str(UUID(value)) if value else None
+
+    @root_validator(skip_on_failure=True)
+    def validate_inventory_source(cls, values: dict[str, object]) -> dict[str, object]:
+        if values.get("inventory_source") == "kardex" and not values.get("kardex_product_id"):
+            raise ValueError("kardex_product_id is required for Kardex inventory source")
+        return values
 
 
 class InventoryPreflightResponse(BaseModel):
@@ -100,6 +114,8 @@ class InventoryPreflightResponse(BaseModel):
     scenario_run_id: str | None = None
     portfolio_run_id: str | None = None
     decision_run_id: str | None = None
+    inventory_source: str = "manual"
+    inventory_source_detail: dict[str, object] | None = None
     cutoff: datetime
     product: str | None = None
     location: str | None = None

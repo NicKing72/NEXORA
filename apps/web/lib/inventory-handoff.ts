@@ -37,6 +37,12 @@ export function inventoryWorkspaceFromRun(
     portfolioId: run.portfolio_run_id ?? "",
     cutoff: run.cutoff,
     includeTransit: run.assumptions.include_in_transit === true,
+    inventorySource: run.assumptions.inventory_source === "kardex"
+      ? "kardex" as const
+      : "manual" as const,
+    kardexProductId: typeof run.assumptions.kardex_product_id === "string"
+      ? run.assumptions.kardex_product_id
+      : "",
     draft,
   };
 }

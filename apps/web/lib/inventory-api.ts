@@ -7,6 +7,7 @@ import type {
 export type InventoryPayload = {
   forecastRunId: string; scenarioRunId: string | null; portfolioRunId: string | null;
   cutoff: string; draft: InventoryDraft; includeInTransit: boolean; frequency?: string;
+  inventorySource?: "manual" | "kardex"; kardexProductId?: string | null;
 };
 
 const inputUnits: Record<keyof InventoryDraft, string> = {
@@ -19,12 +20,14 @@ const inputUnits: Record<keyof InventoryDraft, string> = {
 
 function body(input: InventoryPayload) {
   const units = { ...inputUnits, lead_time: input.frequency === "weekly" ? "weeks" : input.frequency === "monthly" ? "months" : "days" };
-  const operational_inputs = Object.fromEntries(Object.entries(input.draft).filter(([, value]) => value !== "").map(([name, value]) => [name, {
+  const operational_inputs = Object.fromEntries(Object.entries(input.draft).filter(([name, value]) => value !== "" && !(input.inventorySource === "kardex" && name === "inventory_on_hand")).map(([name, value]) => [name, {
     value: Number(value), status: "available", unit: units[name as keyof InventoryDraft],
     available_at: input.cutoff, source_type: "manual", source_reference: "inventory_ui",
   }]));
   return { forecast_run_id: input.forecastRunId, scenario_run_id: input.scenarioRunId,
     portfolio_run_id: input.portfolioRunId, cutoff: input.cutoff,
+    inventory_source: input.inventorySource ?? "manual",
+    kardex_product_id: input.inventorySource === "kardex" ? input.kardexProductId : null,
     include_in_transit: input.includeInTransit, operational_inputs };
 }
 

@@ -10,6 +10,7 @@ from nexora_api.api.routes.explanation import router as explanation_router
 from nexora_api.api.routes.forecast import router as forecast_router
 from nexora_api.api.routes.health import router as health_router
 from nexora_api.api.routes.inventory import router as inventory_router
+from nexora_api.api.routes.kardex import router as kardex_router
 from nexora_api.api.routes.portfolio import router as portfolio_router
 from nexora_api.api.routes.report import router as report_router
 from nexora_api.api.routes.scenario import router as scenario_router
@@ -19,6 +20,7 @@ from nexora_api.api.routes.series import router as series_router
 api_router = APIRouter()
 api_router.include_router(health_router)
 api_router.include_router(inventory_router)
+api_router.include_router(kardex_router)
 api_router.include_router(portfolio_router)
 api_router.include_router(report_router)
 api_router.include_router(context_router)

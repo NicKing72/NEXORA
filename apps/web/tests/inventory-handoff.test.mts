@@ -25,7 +25,7 @@ test("a persisted Inventory Run restores its exact sources and declared inputs",
     scenario_run_id: "scenario-exact",
     portfolio_run_id: "portfolio-exact",
     cutoff: "2026-08-31T23:32:00-05:00",
-    assumptions: { include_in_transit: true },
+    assumptions: { include_in_transit: true, inventory_source: "manual" },
     items: [{ inputs: {
       inventory_on_hand: { status: "available", value: 500 },
       holding_rate: { status: "missing", value: null },
@@ -38,6 +38,8 @@ test("a persisted Inventory Run restores its exact sources and declared inputs",
     portfolioId: "portfolio-exact",
     cutoff: "2026-08-31T23:32:00-05:00",
     includeTransit: true,
+    inventorySource: "manual",
+    kardexProductId: "",
     draft: { inventory_on_hand: "500", holding_rate: "" },
   });
 });

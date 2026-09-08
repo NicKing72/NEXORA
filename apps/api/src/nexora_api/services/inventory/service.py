@@ -32,6 +32,7 @@ from nexora_api.services.inventory.safety_stock import (
     interval_sigma,
 )
 from nexora_api.services.inventory.snapshot import freeze_sources, resolve_inputs
+from nexora_api.services.kardex.compatibility import resolve_inventory_inputs
 
 CALCULATION_VERSION = "inventory_replenishment_v1"
 DEMO_RUN_ID = str(uuid5(UUID("6ba7b810-9dad-11d1-80b4-00c04fd430c8"), "nexora-inventory-demo-v1"))
@@ -379,7 +380,9 @@ def inventory_preflight(db: Session, payload: InventoryRequest) -> dict[str, obj
         decision_run_id=payload.decision_run_id,
         cutoff=payload.cutoff,
     )
-    snapshot, values, missing, warnings = resolve_inputs(payload.operational_inputs, payload.cutoff)
+    snapshot, values, missing, warnings, kardex_source = resolve_inventory_inputs(
+        db, payload, forecast
+    )
     source, points = demand_points(forecast, scenario)
     lead_unit = snapshot["lead_time"].get("unit")
     lead_ok = compatible_lead_time(forecast.frequency, values["lead_time"], lead_unit) is not None
@@ -407,6 +410,8 @@ def inventory_preflight(db: Session, payload: InventoryRequest) -> dict[str, obj
         "scenario_run_id": scenario.id if scenario else None,
         "portfolio_run_id": portfolio.id if portfolio else None,
         "decision_run_id": decision.id if decision else None,
+        "inventory_source": payload.inventory_source,
+        "inventory_source_detail": kardex_source,
         "cutoff": payload.cutoff,
         "product": forecast.product,
         "location": forecast.location,
@@ -432,8 +437,8 @@ def create_inventory(db: Session, payload: InventoryRequest) -> InventoryRun:
         decision_run_id=payload.decision_run_id,
         cutoff=payload.cutoff,
     )
-    input_snapshot, values, missing, input_warnings = resolve_inputs(
-        payload.operational_inputs, payload.cutoff
+    input_snapshot, values, missing, input_warnings, kardex_source = resolve_inventory_inputs(
+        db, payload, forecast
     )
     source, points = demand_points(forecast, scenario)
     draft = compute_item(
@@ -451,6 +456,8 @@ def create_inventory(db: Session, payload: InventoryRequest) -> InventoryRun:
         include_in_transit=payload.include_in_transit,
     )
     now = datetime.now(UTC)
+    source_snapshot = freeze_sources(forecast, scenario, portfolio, decision, points)
+    source_snapshot["kardex"] = kardex_source
     run = InventoryRun(
         id=str(uuid4()),
         dataset_id=forecast.dataset_id,
@@ -464,10 +471,12 @@ def create_inventory(db: Session, payload: InventoryRequest) -> InventoryRun:
         available_at=now,
         calculation_version=CALCULATION_VERSION,
         status="completed",
-        source_snapshot=freeze_sources(forecast, scenario, portfolio, decision, points),
+        source_snapshot=source_snapshot,
         assumptions_json={
             "include_in_transit": payload.include_in_transit,
             "transit_is_not_assumed_immediately_available": True,
+            "inventory_source": payload.inventory_source,
+            "kardex_product_id": payload.kardex_product_id,
         },
         missing_inputs=missing,
         scope_json={
@@ -484,6 +493,7 @@ def create_inventory(db: Session, payload: InventoryRequest) -> InventoryRun:
             "forecast_modified": False,
             "scenario_modified": False,
             "executes_orders": False,
+            "inventory_source": payload.inventory_source,
         },
     )
     _persist_item(run, draft)

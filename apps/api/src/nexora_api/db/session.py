@@ -25,6 +25,17 @@ def initialize_database() -> None:
     Base.metadata.create_all(bind=engine)
     if settings.database_url.startswith("sqlite"):
         with engine.begin() as connection:
+            product_columns = {
+                row[1]
+                for row in connection.exec_driver_sql(
+                    "PRAGMA table_info(inventory_products)"
+                ).fetchall()
+            }
+            if product_columns and "forecast_product_reference" not in product_columns:
+                connection.exec_driver_sql(
+                    "ALTER TABLE inventory_products "
+                    "ADD COLUMN forecast_product_reference VARCHAR(255)"
+                )
             connection.exec_driver_sql("PRAGMA optimize")
 
 

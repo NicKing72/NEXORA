@@ -15,6 +15,8 @@ export type InventoryPreflight = {
   portfolio_run_id: string | null; decision_run_id: string | null; cutoff: string;
   product: string | null; location: string | null; category: string | null;
   frequency: string; horizon: number; champion: string; demand_source: string;
+  inventory_source: "manual" | "kardex";
+  inventory_source_detail: Record<string, unknown> | null;
   available_inputs: string[]; missing_inputs: string[]; calculable: Record<string, boolean>;
   readiness: "ready" | "warning" | "blocked"; warnings: string[];
 };

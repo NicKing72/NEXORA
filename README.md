@@ -201,6 +201,18 @@ Reporting Engine never retrains a model or mutates Forecast, Scenario, SCOR, Por
 
 Inventory Engine proposes quantities only when critical inputs are calculable. It does not execute purchases, alter real inventory, replace the official forecast, or integrate automatically with Decision/Reporting in Milestone 10A.
 
+### Trace inventory with Kardex and barcodes
+
+1. Open [http://localhost:3000/inventory](http://localhost:3000/inventory) and choose **Restablecer demo Kardex**.
+2. Search `BEB-001` or demo barcode `2000000000015`. Pressing Enter also supports USB barcode readers that behave as keyboards.
+3. Review the chronological ledger, moving weighted-average value and persisted balance. `ALI-002` demonstrates PEPS/FIFO layer allocations.
+4. Use **Registrar movimiento** to preview the previous balance, transaction value and resulting balance before explicit confirmation.
+5. Use **Escanear código** to request camera access. Detection happens locally in the browser; no frame is stored or uploaded.
+6. Export **Kardex a Excel** and open the Kardex and Resumen sheets.
+7. Open **Reabastecimiento**, choose Kardex as the explicit physical-stock source and validate compatibility before analysis.
+
+Products without movements have unknown stock rather than zero. Confirmed movements are append-only; corrections require auditable adjustments. Kardex never executes purchases or alters Forecast Runs. See [docs/kardex-engine.md](docs/kardex-engine.md).
+
 ## Run quality checks
 
 With frontend dependencies installed:
@@ -228,4 +240,4 @@ docs/            Architecture decisions and boundaries
 tests/           Future cross-application tests
 ```
 
-See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, [docs/explanation-engine.md](docs/explanation-engine.md) for auditable forecast explanations, [docs/reporting-engine.md](docs/reporting-engine.md) for reproducible reporting, [docs/inventory-engine.md](docs/inventory-engine.md) for inventory mathematics and safeguards, and [docs/architecture.md](docs/architecture.md) for broader boundaries.
+See [docs/data-studio.md](docs/data-studio.md) for ingestion and readiness, [docs/demand-explorer.md](docs/demand-explorer.md) for canonical series rules, [docs/forecast-core.md](docs/forecast-core.md) for model evaluation, [docs/context-engine.md](docs/context-engine.md) for signal contracts, [docs/context-impact.md](docs/context-impact.md) for evidence methodology, [docs/scenario-engine.md](docs/scenario-engine.md) for conditional simulation rules, [docs/decision-engine.md](docs/decision-engine.md) for recommendation rules, [docs/scor-engine.md](docs/scor-engine.md) for quantitative chain diagnostics, [docs/scor-decision-integration.md](docs/scor-decision-integration.md) for the versioned SCOR support contract, [docs/portfolio-engine.md](docs/portfolio-engine.md) for operational portfolio rules, [docs/portfolio-decision-integration.md](docs/portfolio-decision-integration.md) for Portfolio decision evidence, [docs/explanation-engine.md](docs/explanation-engine.md) for auditable forecast explanations, [docs/reporting-engine.md](docs/reporting-engine.md) for reproducible reporting, [docs/inventory-engine.md](docs/inventory-engine.md) for replenishment safeguards, [docs/kardex-engine.md](docs/kardex-engine.md) for inventory traceability and barcode rules, and [docs/architecture.md](docs/architecture.md) for broader boundaries.

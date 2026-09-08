@@ -14,6 +14,7 @@ import "../styles/decision-center.css";
 import "../styles/scor-diagnostic.css";
 import "../styles/portfolio.css";
 import "../styles/inventory.css";
+import "../styles/kardex.css";
 import "../styles/model-explanation.css";
 import "../styles/reports.css";
 
